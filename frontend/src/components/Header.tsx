@@ -34,9 +34,12 @@ export default function Header() {
           <button className="hidden rounded-full border border-[#D6E8EF] bg-white px-4 py-2 text-sm font-medium text-[#1E2D38] transition hover:border-[#6FAFCF] hover:text-[#6FAFCF] sm:inline-flex">
             Resume
           </button>
-          <button className="rounded-full bg-[#1E2D38] px-4 py-2 text-sm font-medium text-white transition hover:opacity-90">
+          <a
+            href="/onboarding"
+            className="rounded-full bg-[#1E2D38] px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
+          >
             Begin today
-          </button>
+          </a>
         </div>
       </div>
     </header>
