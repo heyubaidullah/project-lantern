@@ -19,15 +19,24 @@ export default function Header() {
         </div>
 
         <nav className="hidden items-center gap-2 md:flex">
-          <button className="rounded-full px-4 py-2 text-sm font-medium text-[#5A6B75] transition hover:bg-white hover:text-[#1E2D38]">
+          <a
+            href="/journey"
+            className="rounded-full px-4 py-2 text-sm font-medium text-[#5A6B75] transition hover:bg-white hover:text-[#1E2D38]"
+          >
             Today
-          </button>
-          <button className="rounded-full px-4 py-2 text-sm font-medium text-[#5A6B75] transition hover:bg-white hover:text-[#1E2D38]">
-            Pathways
-          </button>
-          <button className="rounded-full px-4 py-2 text-sm font-medium text-[#5A6B75] transition hover:bg-white hover:text-[#1E2D38]">
+          </a>
+          <a
+            href="/"
+            className="rounded-full px-4 py-2 text-sm font-medium text-[#5A6B75] transition hover:bg-white hover:text-[#1E2D38]"
+          >
+            Home
+          </a>
+          <a
+            href="/progress"
+            className="rounded-full px-4 py-2 text-sm font-medium text-[#5A6B75] transition hover:bg-white hover:text-[#1E2D38]"
+          >
             Progress
-          </button>
+          </a>
         </nav>
 
         <div className="flex items-center gap-2">
