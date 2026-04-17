@@ -33,17 +33,17 @@ const intentOptions: IntentOption[] = [
   {
     id: "daily-habit",
     title: "Build a daily habit",
-    description: "A steady, simple rhythm to return to the Quran every day.",
+    description: "A steady, simple rhythm to return every day.",
   },
   {
     id: "reconnect",
-    title: "Reconnect after Ramadan",
-    description: "Carry the spiritual momentum of Ramadan into ordinary life.",
+    title: "Reconnect after a strong season",
+    description: "Carry spiritual momentum into ordinary life.",
   },
   {
     id: "understand",
     title: "Understand more clearly",
-    description: "Move beyond recitation into meaning, reflection, and clarity.",
+    description: "Move beyond reading into meaning, reflection, and clarity.",
   },
   {
     id: "gentle-start",
@@ -55,7 +55,7 @@ const intentOptions: IntentOption[] = [
 const languageOptions: LanguageOption[] = [
   { id: "english", title: "English", subtitle: "Clear and familiar" },
   { id: "arabic", title: "Arabic", subtitle: "For readers comfortable with Arabic" },
-  { id: "spanish", title: "Spanish", subtitle: "For broader accessibility" },
+  { id: "spanish", title: "Spanish", subtitle: "A more accessible starting point" },
   { id: "urdu", title: "Urdu", subtitle: "A familiar option for many readers" },
 ];
 
@@ -105,10 +105,10 @@ const totalSteps = 4;
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
 
-  const [intent, setIntent] = useState<string>("");
-  const [language, setLanguage] = useState<string>("");
-  const [rhythm, setRhythm] = useState<string>("");
-  const [pathway, setPathway] = useState<string>("");
+  const [intent, setIntent] = useState("");
+  const [language, setLanguage] = useState("");
+  const [rhythm, setRhythm] = useState("");
+  const [pathway, setPathway] = useState("");
 
   const canContinue = useMemo(() => {
     if (step === 1) return Boolean(intent);
@@ -130,6 +130,21 @@ export default function OnboardingPage() {
     }
   }
 
+  function saveAndBeginJourney() {
+    if (!canContinue) return;
+
+    const onboardingData = {
+      intent,
+      language,
+      rhythm,
+      pathway,
+      completedAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem("lantern_onboarding", JSON.stringify(onboardingData));
+    window.location.href = "/journey";
+  }
+
   const summary = {
     intent: intentOptions.find((item) => item.id === intent)?.title ?? "—",
     language: languageOptions.find((item) => item.id === language)?.title ?? "—",
@@ -147,7 +162,7 @@ export default function OnboardingPage() {
             <section className="flex flex-col justify-between rounded-[2rem] border border-[#d8e7ec] bg-[linear-gradient(135deg,#6FAFCF_0%,#7dbdca_42%,#8CC7C3_100%)] p-7 text-white shadow-[0_30px_80px_rgba(30,45,56,0.10)] sm:p-9">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/75">
-                  One Ayah Forward
+                  Project Lantern
                 </p>
                 <h1 className="mt-3 text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">
                   Begin gently.
@@ -155,7 +170,7 @@ export default function OnboardingPage() {
                   Build a rhythm that lasts.
                 </h1>
                 <p className="mt-5 max-w-md text-sm leading-7 text-white/85 sm:text-base">
-                  A few small choices will help shape a calmer, more personal Quran
+                  A few small choices will help shape a calmer, more personal daily
                   journey — one that feels welcoming enough to return to every day.
                 </p>
               </div>
@@ -279,14 +294,14 @@ export default function OnboardingPage() {
                     Continue
                   </button>
                 ) : (
-                    <a
-                    href="/journey"
-                    className={`rounded-full bg-[#1E2D38] px-6 py-3 text-sm font-medium text-white transition hover:opacity-90 ${
-                        !canContinue ? "pointer-events-none opacity-50" : ""
-                    }`}
-                    >
+                  <button
+                    type="button"
+                    onClick={saveAndBeginJourney}
+                    disabled={!canContinue}
+                    className="rounded-full bg-[#1E2D38] px-6 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
                     Begin journey
-                    </a>
+                  </button>
                 )}
               </div>
             </section>

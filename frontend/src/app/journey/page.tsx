@@ -4,16 +4,101 @@ import { useEffect, useMemo, useState } from "react";
 import Header from "@/components/Header";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
 
+type OnboardingData = {
+  intent: string;
+  language: string;
+  rhythm: string;
+  pathway: string;
+  completedAt?: string;
+};
+
+const pathwayMeta: Record<
+  string,
+  { title: string; description: string; reflectionPrompt: string; actions: string[] }
+> = {
+  "reconnect-after-ramadan": {
+    title: "Reconnect After Ramadan",
+    description: "A gentle path back into consistency and continuity.",
+    reflectionPrompt:
+      "What is one way you want to carry the spirit of a strong season into ordinary life?",
+    actions: [
+      "Set aside one calm moment today to return sincerely.",
+      "Pause before one task today and begin with gratitude.",
+      "Protect one small habit you want to keep going.",
+    ],
+  },
+  "start-understanding": {
+    title: "Start Understanding",
+    description: "A beginner-friendly journey for meaning, context, and clarity.",
+    reflectionPrompt:
+      "What part of this passage feels clearer to you today than before?",
+    actions: [
+      "Read the translation slowly one extra time before moving on.",
+      "Write one sentence in your own words about what you understood.",
+      "Share one insight with someone close to you today.",
+    ],
+  },
+  "mercy-and-hope": {
+    title: "Mercy and Hope",
+    description: "A reflective pathway centered on comfort, healing, and return.",
+    reflectionPrompt:
+      "What in this passage gives you hope or reassurance today?",
+    actions: [
+      "Make one quiet dua today with hope and trust.",
+      "Speak more gently to yourself in one difficult moment.",
+      "Remember one blessing you may have overlooked today.",
+    ],
+  },
+  "beginners-7-day": {
+    title: "Beginner’s 7-Day Journey",
+    description: "A soft introduction for new, returning, or exploring users.",
+    reflectionPrompt:
+      "What is one idea from today’s passage that feels new, comforting, or important?",
+    actions: [
+      "Take one minute today to sit quietly with what you read.",
+      "Write one question you want to understand better later.",
+      "Return tomorrow even if only for a very short reading.",
+    ],
+  },
+};
+
+const languageMeta: Record<string, string> = {
+  english: "English",
+  arabic: "Arabic",
+  spanish: "Spanish",
+  urdu: "Urdu",
+};
+
+const rhythmMeta: Record<string, string> = {
+  "2": "2 minutes",
+  "5": "5 minutes",
+  "10": "10 minutes",
+};
+
 export default function JourneyPage() {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [reflection, setReflection] = useState("");
-  const [selectedAction, setSelectedAction] = useState(
-    "Reach out kindly to one family member today."
-  );
+  const [selectedAction, setSelectedAction] = useState("");
+  const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
 
   useEffect(() => {
+    const rawData = localStorage.getItem("lantern_onboarding");
+    if (rawData) {
+      try {
+        const parsed = JSON.parse(rawData) as OnboardingData;
+        setOnboardingData(parsed);
+
+        const pathwayConfig = pathwayMeta[parsed.pathway];
+        if (pathwayConfig?.actions?.[0]) {
+          setSelectedAction(pathwayConfig.actions[0]);
+        }
+      } catch {
+        setOnboardingData(null);
+      }
+    }
+
     async function fetchChapters() {
       try {
         const response = await fetch(
@@ -38,11 +123,30 @@ export default function JourneyPage() {
 
   const chapter = useMemo(() => chapters[0], [chapters]);
 
-  const actionOptions = [
-    "Reach out kindly to one family member today.",
-    "Pause before reacting in one difficult moment.",
-    "Take one quiet minute for dua before your next task.",
-  ];
+  const pathwayConfig = onboardingData?.pathway
+    ? pathwayMeta[onboardingData.pathway]
+    : null;
+
+  const actionOptions =
+    pathwayConfig?.actions ?? [
+      "Reach out kindly to one family member today.",
+      "Pause before reacting in one difficult moment.",
+      "Take one quiet minute before your next task.",
+    ];
+
+  const reflectionPrompt =
+    pathwayConfig?.reflectionPrompt ??
+    "What feels personally relevant from this passage today?";
+
+  const pathwayTitle = pathwayConfig?.title ?? "Your chosen pathway";
+  const pathwayDescription =
+    pathwayConfig?.description ??
+    "A guided daily path to help you return consistently.";
+
+  const selectedLanguage =
+    onboardingData?.language ? languageMeta[onboardingData.language] : "English";
+  const selectedRhythm =
+    onboardingData?.rhythm ? rhythmMeta[onboardingData.rhythm] : "5 minutes";
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#edf7fa_0%,#f7fbfc_45%,#f7fbfc_100%)]">
@@ -57,11 +161,10 @@ export default function JourneyPage() {
               Today’s Journey
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#1E2D38] sm:text-4xl">
-              Read, understand, reflect, and carry one small step with you.
+              {pathwayTitle}
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-[#5A6B75] sm:text-base">
-              This is your first guided daily experience. The goal is not to do a
-              lot — it is to return sincerely and stay connected.
+              {pathwayDescription}
             </p>
           </div>
 
@@ -107,7 +210,7 @@ export default function JourneyPage() {
                         ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ
                       </p>
                       <p className="mt-4 text-base leading-8 text-[#5A6B75]">
-                        “All praise is for Allah — Lord of all worlds.”
+                        “All praise is for the Lord of all worlds.”
                       </p>
                     </div>
 
@@ -117,9 +220,9 @@ export default function JourneyPage() {
                       </p>
                       <p className="mt-3 leading-7 text-[#5A6B75]">
                         This opening reminder begins with gratitude and recognition.
-                        It recenters the heart on Allah before anything else. The
-                        relationship begins with praise, humility, and awareness of
-                        who truly sustains everything.
+                        It recenters the heart before anything else. The journey
+                        begins with praise, humility, and awareness of what truly
+                        sustains everything.
                       </p>
                     </div>
                   </div>
@@ -130,7 +233,7 @@ export default function JourneyPage() {
                     Reflect
                   </p>
                   <h3 className="mt-3 text-2xl font-semibold tracking-tight text-[#1E2D38]">
-                    What feels personally relevant from this ayah today?
+                    {reflectionPrompt}
                   </h3>
                   <textarea
                     value={reflection}
@@ -197,9 +300,9 @@ export default function JourneyPage() {
                   </p>
 
                   <div className="mt-5 grid gap-4">
-                    <SnapshotRow label="Language" value="English" />
-                    <SnapshotRow label="Rhythm" value="5 minutes" />
-                    <SnapshotRow label="Pathway" value="Reconnect After Ramadan" />
+                    <SnapshotRow label="Language" value={selectedLanguage} />
+                    <SnapshotRow label="Rhythm" value={selectedRhythm} />
+                    <SnapshotRow label="Pathway" value={pathwayTitle} />
                     <SnapshotRow label="Today’s focus" value={chapter.name_simple} />
                   </div>
                 </div>
