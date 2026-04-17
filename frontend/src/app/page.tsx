@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Header from "@/components/Header";
 import HeroCard from "@/components/HeroCard";
 import { ChapterPreviewCard } from "@/components/chapter-preview-card";
@@ -9,10 +9,25 @@ import { ReflectionCard } from "@/components/reflection-card";
 import { ProgressCard } from "@/components/progress-card";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
 
+type SavedJourneyEntry = {
+  id: string;
+  createdAt: string;
+  pathway: string;
+  pathwayTitle: string;
+  language: string;
+  rhythm: string;
+  chapterId: number;
+  chapterName: string;
+  chapterArabicName: string;
+  reflection: string;
+  actionStep: string;
+};
+
 export default function HomePage() {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [savedEntries, setSavedEntries] = useState<SavedJourneyEntry[]>([]);
 
   useEffect(() => {
     async function fetchChapters() {
@@ -35,7 +50,31 @@ export default function HomePage() {
     }
 
     fetchChapters();
+
+    const rawEntries = localStorage.getItem("lantern_saved_entries");
+    if (rawEntries) {
+      try {
+        const parsed = JSON.parse(rawEntries) as SavedJourneyEntry[];
+        setSavedEntries(parsed);
+      } catch {
+        setSavedEntries([]);
+      }
+    }
   }, []);
+
+  const latestEntry = useMemo(() => savedEntries[0], [savedEntries]);
+  const savedCount = savedEntries.length;
+  const uniquePathways = new Set(savedEntries.map((entry) => entry.pathwayTitle)).size;
+
+  function formatSavedTime(isoDate: string) {
+    const date = new Date(isoDate);
+    return date.toLocaleString([], {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#edf7fa_0%,#f7fbfc_45%,#f7fbfc_100%)]">
@@ -50,10 +89,83 @@ export default function HomePage() {
           <section className="mt-10">
             <div className="mb-5">
               <h2 className="text-2xl font-semibold text-[#1E2D38]">
-                Quran Preview
+                Recent Reflection
               </h2>
               <p className="mt-2 text-[#5A6B75]">
-                A first look at Quran content flowing through the app.
+                Your most recent saved step from the journey.
+              </p>
+            </div>
+
+            {latestEntry ? (
+              <div className="rounded-[2rem] border border-[#d8e7ec] bg-white p-6 shadow-[0_24px_70px_rgba(30,45,56,0.06)] sm:p-8">
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="max-w-3xl">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-[#EEF6F8] px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-[#5A6B75]">
+                        {latestEntry.pathwayTitle}
+                      </span>
+                      <span className="rounded-full bg-[#EEF6F8] px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-[#5A6B75]">
+                        {latestEntry.chapterName}
+                      </span>
+                    </div>
+
+                    <h3 className="mt-4 text-2xl font-semibold tracking-tight text-[#1E2D38]">
+                      {latestEntry.chapterName}
+                    </h3>
+
+                    <p className="mt-4 text-sm font-medium uppercase tracking-[0.18em] text-[#5A6B75]">
+                      Reflection
+                    </p>
+                    <p className="mt-2 text-base leading-8 text-[#1E2D38]">
+                      {latestEntry.reflection}
+                    </p>
+
+                    <p className="mt-5 text-sm font-medium uppercase tracking-[0.18em] text-[#5A6B75]">
+                      Chosen action
+                    </p>
+                    <p className="mt-2 text-base leading-8 text-[#1E2D38]">
+                      {latestEntry.actionStep}
+                    </p>
+                  </div>
+
+                  <div className="rounded-[1.5rem] border border-[#E3EEF1] bg-[#FBFEFF] px-5 py-4 lg:min-w-[220px]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5A6B75]">
+                      Saved
+                    </p>
+                    <p className="mt-2 text-sm text-[#1E2D38]">
+                      {formatSavedTime(latestEntry.createdAt)}
+                    </p>
+
+                    <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[#5A6B75]">
+                      Rhythm
+                    </p>
+                    <p className="mt-2 text-sm text-[#1E2D38]">
+                      {latestEntry.rhythm}
+                    </p>
+
+                    <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[#5A6B75]">
+                      Language
+                    </p>
+                    <p className="mt-2 text-sm text-[#1E2D38]">
+                      {latestEntry.language}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-[2rem] border border-dashed border-[#D6E8EF] bg-white p-6 text-[#5A6B75] shadow-sm">
+                No reflection saved yet. Complete one journey and save your first entry.
+              </div>
+            )}
+          </section>
+
+          <section className="mt-10">
+            <div className="mb-5">
+              <h2 className="text-2xl font-semibold text-[#1E2D38]">
+                Chapter Preview
+              </h2>
+              <p className="mt-2 text-[#5A6B75]">
+                A first look at content flowing through the app.
               </p>
             </div>
 
@@ -109,25 +221,25 @@ export default function HomePage() {
                 Progress Snapshot
               </h2>
               <p className="mt-2 text-[#5A6B75]">
-                A simple view of consistency, notes, and pathway growth.
+                A simple view of consistency, saved notes, and pathway growth.
               </p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
               <ProgressCard
-                label="Consistency"
-                value="5 days"
-                description="A gentle measure of returning to the journey regularly."
+                label="Saved Entries"
+                value={String(savedCount)}
+                description="Private reflections and action steps saved over time."
               />
               <ProgressCard
-                label="Reflections"
-                value="12 notes"
-                description="Private thoughts and action steps saved over time."
+                label="Pathways Used"
+                value={String(uniquePathways)}
+                description="Different guided pathways you have moved through."
               />
               <ProgressCard
-                label="Pathway"
-                value="2 of 7"
-                description="Visible progress through a guided learning journey."
+                label="Latest Focus"
+                value={latestEntry?.chapterName ?? "—"}
+                description="Your most recently saved chapter from the journey."
               />
             </div>
           </section>

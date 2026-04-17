@@ -12,6 +12,20 @@ type OnboardingData = {
   completedAt?: string;
 };
 
+type SavedJourneyEntry = {
+  id: string;
+  createdAt: string;
+  pathway: string;
+  pathwayTitle: string;
+  language: string;
+  rhythm: string;
+  chapterId: number;
+  chapterName: string;
+  chapterArabicName: string;
+  reflection: string;
+  actionStep: string;
+};
+
 const pathwayMeta: Record<
   string,
   { title: string; description: string; reflectionPrompt: string; actions: string[] }
@@ -82,6 +96,9 @@ export default function JourneyPage() {
   const [reflection, setReflection] = useState("");
   const [selectedAction, setSelectedAction] = useState("");
   const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
+  const [saveMessage, setSaveMessage] = useState("");
+  const [lastSavedAt, setLastSavedAt] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const rawData = localStorage.getItem("lantern_onboarding");
@@ -147,6 +164,45 @@ export default function JourneyPage() {
     onboardingData?.language ? languageMeta[onboardingData.language] : "English";
   const selectedRhythm =
     onboardingData?.rhythm ? rhythmMeta[onboardingData.rhythm] : "5 minutes";
+
+  function saveTodayReflection() {
+    if (!chapter) return;
+    if (!reflection.trim()) {
+      setSaveMessage("Please write a reflection before saving.");
+      return;
+    }
+
+    setIsSaving(true);
+
+    const entry: SavedJourneyEntry = {
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+      pathway: onboardingData?.pathway ?? "default",
+      pathwayTitle,
+      language: selectedLanguage,
+      rhythm: selectedRhythm,
+      chapterId: chapter.id,
+      chapterName: chapter.name_simple,
+      chapterArabicName: chapter.name_arabic,
+      reflection: reflection.trim(),
+      actionStep: selectedAction,
+    };
+
+    const existingRaw = localStorage.getItem("lantern_saved_entries");
+    const existingEntries: SavedJourneyEntry[] = existingRaw
+      ? JSON.parse(existingRaw)
+      : [];
+
+    const updatedEntries = [entry, ...existingEntries];
+    localStorage.setItem(
+      "lantern_saved_entries",
+      JSON.stringify(updatedEntries)
+    );
+
+    setLastSavedAt(entry.createdAt);
+    setSaveMessage("Today’s reflection was saved successfully.");
+    setIsSaving(false);
+  }
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#edf7fa_0%,#f7fbfc_45%,#f7fbfc_100%)]">
@@ -241,6 +297,35 @@ export default function JourneyPage() {
                     placeholder="Write a private reflection for yourself..."
                     className="mt-5 min-h-[160px] w-full rounded-[1.5rem] border border-[#D6E8EF] bg-[#FBFEFF] px-5 py-4 text-sm text-[#1E2D38] outline-none transition placeholder:text-[#8BA0AA] focus:border-[#6FAFCF] focus:ring-4 focus:ring-[#6FAFCF]/10"
                   />
+
+                  <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <button
+                      type="button"
+                      onClick={saveTodayReflection}
+                      disabled={isSaving}
+                      className="rounded-full bg-[#1E2D38] px-6 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isSaving ? "Saving..." : "Save today’s reflection"}
+                    </button>
+
+                    {lastSavedAt && (
+                      <p className="text-sm text-[#5A6B75]">
+                        Last saved just now
+                      </p>
+                    )}
+                  </div>
+
+                  {saveMessage && (
+                    <div
+                      className={`mt-4 rounded-2xl px-4 py-3 text-sm ${
+                        saveMessage.includes("successfully")
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "bg-amber-50 text-amber-700"
+                      }`}
+                    >
+                      {saveMessage}
+                    </div>
+                  )}
                 </div>
               </section>
 
