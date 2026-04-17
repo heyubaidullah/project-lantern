@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import OnboardingProgress from "@/components/OnboardingProgress";
 import OptionCard from "@/components/OptionCard";
 import StepShell from "@/components/StepShell";
+import { saveOnboardingData } from "@/lib/storage";
+import type { OnboardingData } from "@/types/app";
 
 type IntentOption = {
   id: string;
@@ -54,8 +56,16 @@ const intentOptions: IntentOption[] = [
 
 const languageOptions: LanguageOption[] = [
   { id: "english", title: "English", subtitle: "Clear and familiar" },
-  { id: "arabic", title: "Arabic", subtitle: "For readers comfortable with Arabic" },
-  { id: "spanish", title: "Spanish", subtitle: "A more accessible starting point" },
+  {
+    id: "arabic",
+    title: "Arabic",
+    subtitle: "For readers comfortable with Arabic",
+  },
+  {
+    id: "spanish",
+    title: "Spanish",
+    subtitle: "A more accessible starting point",
+  },
   { id: "urdu", title: "Urdu", subtitle: "A familiar option for many readers" },
 ];
 
@@ -73,7 +83,8 @@ const rhythmOptions: RhythmOption[] = [
   {
     id: "10",
     title: "10 minutes",
-    description: "A slightly deeper daily experience without becoming overwhelming.",
+    description:
+      "A slightly deeper daily experience without becoming overwhelming.",
   },
 ];
 
@@ -91,12 +102,14 @@ const pathwayOptions: PathwayOption[] = [
   {
     id: "mercy-and-hope",
     title: "Mercy and Hope",
-    description: "A reflective pathway centered on comfort, healing, and return.",
+    description:
+      "A reflective pathway centered on comfort, healing, and return.",
   },
   {
     id: "beginners-7-day",
     title: "Beginner’s 7-Day Journey",
-    description: "A soft introduction for new, returning, or exploring users.",
+    description:
+      "A soft introduction for new, returning, or exploring users.",
   },
 ];
 
@@ -133,7 +146,7 @@ export default function OnboardingPage() {
   function saveAndBeginJourney() {
     if (!canContinue) return;
 
-    const onboardingData = {
+    const onboardingData: OnboardingData = {
       intent,
       language,
       rhythm,
@@ -141,7 +154,7 @@ export default function OnboardingPage() {
       completedAt: new Date().toISOString(),
     };
 
-    localStorage.setItem("lantern_onboarding", JSON.stringify(onboardingData));
+    saveOnboardingData(onboardingData);
     window.location.href = "/journey";
   }
 
@@ -170,8 +183,9 @@ export default function OnboardingPage() {
                   Build a rhythm that lasts.
                 </h1>
                 <p className="mt-5 max-w-md text-sm leading-7 text-white/85 sm:text-base">
-                  A few small choices will help shape a calmer, more personal daily
-                  journey — one that feels welcoming enough to return to every day.
+                  A few small choices will help shape a calmer, more personal
+                  daily journey — one that feels welcoming enough to return to
+                  every day.
                 </p>
               </div>
 

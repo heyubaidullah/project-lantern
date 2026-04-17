@@ -2,33 +2,18 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Header from "@/components/Header";
+import { getOnboardingData, saveJourneyEntry } from "@/lib/storage";
+import type { OnboardingData, SavedJourneyEntry } from "@/types/app";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
-
-type OnboardingData = {
-  intent: string;
-  language: string;
-  rhythm: string;
-  pathway: string;
-  completedAt?: string;
-};
-
-type SavedJourneyEntry = {
-  id: string;
-  createdAt: string;
-  pathway: string;
-  pathwayTitle: string;
-  language: string;
-  rhythm: string;
-  chapterId: number;
-  chapterName: string;
-  chapterArabicName: string;
-  reflection: string;
-  actionStep: string;
-};
 
 const pathwayMeta: Record<
   string,
-  { title: string; description: string; reflectionPrompt: string; actions: string[] }
+  {
+    title: string;
+    description: string;
+    reflectionPrompt: string;
+    actions: string[];
+  }
 > = {
   "reconnect-after-ramadan": {
     title: "Reconnect After Ramadan",
@@ -95,24 +80,21 @@ export default function JourneyPage() {
   const [error, setError] = useState("");
   const [reflection, setReflection] = useState("");
   const [selectedAction, setSelectedAction] = useState("");
-  const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
+  const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(
+    null
+  );
   const [saveMessage, setSaveMessage] = useState("");
   const [lastSavedAt, setLastSavedAt] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const rawData = localStorage.getItem("lantern_onboarding");
-    if (rawData) {
-      try {
-        const parsed = JSON.parse(rawData) as OnboardingData;
-        setOnboardingData(parsed);
+    const parsed = getOnboardingData();
+    if (parsed) {
+      setOnboardingData(parsed);
 
-        const pathwayConfig = pathwayMeta[parsed.pathway];
-        if (pathwayConfig?.actions?.[0]) {
-          setSelectedAction(pathwayConfig.actions[0]);
-        }
-      } catch {
-        setOnboardingData(null);
+      const pathwayConfig = pathwayMeta[parsed.pathway];
+      if (pathwayConfig?.actions?.[0]) {
+        setSelectedAction(pathwayConfig.actions[0]);
       }
     }
 
@@ -188,16 +170,7 @@ export default function JourneyPage() {
       actionStep: selectedAction,
     };
 
-    const existingRaw = localStorage.getItem("lantern_saved_entries");
-    const existingEntries: SavedJourneyEntry[] = existingRaw
-      ? JSON.parse(existingRaw)
-      : [];
-
-    const updatedEntries = [entry, ...existingEntries];
-    localStorage.setItem(
-      "lantern_saved_entries",
-      JSON.stringify(updatedEntries)
-    );
+    saveJourneyEntry(entry);
 
     setLastSavedAt(entry.createdAt);
     setSaveMessage("Today’s reflection was saved successfully.");
@@ -253,7 +226,9 @@ export default function JourneyPage() {
                           {chapter.translated_name.name}
                         </p>
                       </div>
-                      <p className="text-3xl sm:text-4xl">{chapter.name_arabic}</p>
+                      <p className="text-3xl sm:text-4xl">
+                        {chapter.name_arabic}
+                      </p>
                     </div>
                   </div>
 
@@ -275,10 +250,10 @@ export default function JourneyPage() {
                         Understand
                       </p>
                       <p className="mt-3 leading-7 text-[#5A6B75]">
-                        This opening reminder begins with gratitude and recognition.
-                        It recenters the heart before anything else. The journey
-                        begins with praise, humility, and awareness of what truly
-                        sustains everything.
+                        This opening reminder begins with gratitude and
+                        recognition. It recenters the heart before anything else.
+                        The journey begins with praise, humility, and awareness
+                        of what truly sustains everything.
                       </p>
                     </div>
                   </div>
@@ -388,7 +363,10 @@ export default function JourneyPage() {
                     <SnapshotRow label="Language" value={selectedLanguage} />
                     <SnapshotRow label="Rhythm" value={selectedRhythm} />
                     <SnapshotRow label="Pathway" value={pathwayTitle} />
-                    <SnapshotRow label="Today’s focus" value={chapter.name_simple} />
+                    <SnapshotRow
+                      label="Today’s focus"
+                      value={chapter.name_simple}
+                    />
                   </div>
                 </div>
 
@@ -397,8 +375,8 @@ export default function JourneyPage() {
                     Gentle note
                   </p>
                   <p className="mt-3 text-sm leading-7 text-[#5A6B75]">
-                    Returning with sincerity matters more than doing a lot. Let this
-                    be a calm beginning, not a heavy burden.
+                    Returning with sincerity matters more than doing a lot. Let
+                    this be a calm beginning, not a heavy burden.
                   </p>
                 </div>
               </aside>

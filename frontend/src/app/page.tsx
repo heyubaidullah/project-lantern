@@ -7,21 +7,9 @@ import { ChapterPreviewCard } from "@/components/chapter-preview-card";
 import { PathwayCard } from "@/components/pathway-card";
 import { ReflectionCard } from "@/components/reflection-card";
 import { ProgressCard } from "@/components/progress-card";
+import { getSavedJourneyEntries } from "@/lib/storage";
+import type { SavedJourneyEntry } from "@/types/app";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
-
-type SavedJourneyEntry = {
-  id: string;
-  createdAt: string;
-  pathway: string;
-  pathwayTitle: string;
-  language: string;
-  rhythm: string;
-  chapterId: number;
-  chapterName: string;
-  chapterArabicName: string;
-  reflection: string;
-  actionStep: string;
-};
 
 export default function HomePage() {
   const [chapters, setChapters] = useState<Chapter[]>([]);
@@ -51,20 +39,15 @@ export default function HomePage() {
 
     fetchChapters();
 
-    const rawEntries = localStorage.getItem("lantern_saved_entries");
-    if (rawEntries) {
-      try {
-        const parsed = JSON.parse(rawEntries) as SavedJourneyEntry[];
-        setSavedEntries(parsed);
-      } catch {
-        setSavedEntries([]);
-      }
-    }
+    const parsedEntries = getSavedJourneyEntries();
+    setSavedEntries(parsedEntries);
   }, []);
 
   const latestEntry = useMemo(() => savedEntries[0], [savedEntries]);
   const savedCount = savedEntries.length;
-  const uniquePathways = new Set(savedEntries.map((entry) => entry.pathwayTitle)).size;
+  const uniquePathways = new Set(
+    savedEntries.map((entry) => entry.pathwayTitle)
+  ).size;
 
   function formatSavedTime(isoDate: string) {
     const date = new Date(isoDate);
@@ -154,7 +137,8 @@ export default function HomePage() {
               </div>
             ) : (
               <div className="rounded-[2rem] border border-dashed border-[#D6E8EF] bg-white p-6 text-[#5A6B75] shadow-sm">
-                No reflection saved yet. Complete one journey and save your first entry.
+                No reflection saved yet. Complete one journey and save your
+                first entry.
               </div>
             )}
           </section>
