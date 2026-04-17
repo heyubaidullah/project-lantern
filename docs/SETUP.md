@@ -113,13 +113,6 @@ http://localhost:3000
 - onboarding selections are currently stored in browser storage
 - journey personalization depends on onboarding completion
 
-## Suggested Workflow
-```bash
-git add .
-git commit -m "feat: add onboarding flow and first journey screen"
-git push origin main
-```
-
 ## Deployment Direction
 - Frontend: Netlify
 - Backend: Railway
