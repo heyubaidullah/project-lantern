@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import OnboardingProgress from "@/components/OnboardingProgress";
 import OptionCard from "@/components/OptionCard";
 import StepShell from "@/components/StepShell";
-import { saveOnboardingData } from "@/lib/storage";
+import { saveOnboardingProfile } from "@/lib/db";
 import type { OnboardingData } from "@/types/app";
 
 type IntentOption = {
@@ -122,6 +122,8 @@ export default function OnboardingPage() {
   const [language, setLanguage] = useState("");
   const [rhythm, setRhythm] = useState("");
   const [pathway, setPathway] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const canContinue = useMemo(() => {
     if (step === 1) return Boolean(intent);
@@ -143,8 +145,11 @@ export default function OnboardingPage() {
     }
   }
 
-  function saveAndBeginJourney() {
+  async function saveAndBeginJourney() {
     if (!canContinue) return;
+
+    setIsSubmitting(true);
+    setSubmitError("");
 
     const onboardingData: OnboardingData = {
       intent,
@@ -154,8 +159,17 @@ export default function OnboardingPage() {
       completedAt: new Date().toISOString(),
     };
 
-    saveOnboardingData(onboardingData);
-    window.location.href = "/journey";
+    try {
+      await saveOnboardingProfile(onboardingData);
+      window.location.href = "/journey";
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : "Failed to save onboarding profile."
+      );
+      setIsSubmitting(false);
+    }
   }
 
   const summary = {
@@ -288,11 +302,17 @@ export default function OnboardingPage() {
                 </StepShell>
               )}
 
+              {submitError && (
+                <div className="mt-6 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {submitError}
+                </div>
+              )}
+
               <div className="mt-8 flex flex-col gap-3 border-t border-[#E3EEF1] pt-6 sm:flex-row sm:items-center sm:justify-between">
                 <button
                   type="button"
                   onClick={prevStep}
-                  disabled={step === 1}
+                  disabled={step === 1 || isSubmitting}
                   className="rounded-full border border-[#D6E8EF] bg-[#F7FBFC] px-5 py-3 text-sm font-medium text-[#1E2D38] transition hover:bg-[#EEF6F8] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Back
@@ -302,7 +322,7 @@ export default function OnboardingPage() {
                   <button
                     type="button"
                     onClick={nextStep}
-                    disabled={!canContinue}
+                    disabled={!canContinue || isSubmitting}
                     className="rounded-full bg-[#1E2D38] px-6 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Continue
@@ -311,10 +331,10 @@ export default function OnboardingPage() {
                   <button
                     type="button"
                     onClick={saveAndBeginJourney}
-                    disabled={!canContinue}
+                    disabled={!canContinue || isSubmitting}
                     className="rounded-full bg-[#1E2D38] px-6 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Begin journey
+                    {isSubmitting ? "Saving..." : "Begin journey"}
                   </button>
                 )}
               </div>

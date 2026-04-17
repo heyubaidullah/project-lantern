@@ -7,7 +7,7 @@ import { ChapterPreviewCard } from "@/components/chapter-preview-card";
 import { PathwayCard } from "@/components/pathway-card";
 import { ReflectionCard } from "@/components/reflection-card";
 import { ProgressCard } from "@/components/progress-card";
-import { getSavedJourneyEntries } from "@/lib/storage";
+import { getJourneyEntriesFromDb } from "@/lib/db";
 import type { SavedJourneyEntry } from "@/types/app";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
 
@@ -37,10 +37,18 @@ export default function HomePage() {
       }
     }
 
-    fetchChapters();
+    async function fetchSavedEntries() {
+      try {
+        const entries = await getJourneyEntriesFromDb();
+        setSavedEntries(entries);
+      } catch (err) {
+        console.error("Failed to fetch saved journey entries", err);
+        setSavedEntries([]);
+      }
+    }
 
-    const parsedEntries = getSavedJourneyEntries();
-    setSavedEntries(parsedEntries);
+    fetchChapters();
+    fetchSavedEntries();
   }, []);
 
   const latestEntry = useMemo(() => savedEntries[0], [savedEntries]);

@@ -2,7 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Header from "@/components/Header";
-import { getOnboardingData, saveJourneyEntry } from "@/lib/storage";
+import {
+  getOnboardingProfile,
+  saveJourneyEntryToDb,
+} from "@/lib/db";
 import type { OnboardingData, SavedJourneyEntry } from "@/types/app";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
 
@@ -88,13 +91,19 @@ export default function JourneyPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const parsed = getOnboardingData();
-    if (parsed) {
-      setOnboardingData(parsed);
+    async function loadJourneyContext() {
+      try {
+        const profile = await getOnboardingProfile();
+        if (profile) {
+          setOnboardingData(profile);
 
-      const pathwayConfig = pathwayMeta[parsed.pathway];
-      if (pathwayConfig?.actions?.[0]) {
-        setSelectedAction(pathwayConfig.actions[0]);
+          const pathwayConfig = pathwayMeta[profile.pathway];
+          if (pathwayConfig?.actions?.[0]) {
+            setSelectedAction(pathwayConfig.actions[0]);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load onboarding profile", err);
       }
     }
 
@@ -117,6 +126,7 @@ export default function JourneyPage() {
       }
     }
 
+    loadJourneyContext();
     fetchChapters();
   }, []);
 
@@ -147,7 +157,7 @@ export default function JourneyPage() {
   const selectedRhythm =
     onboardingData?.rhythm ? rhythmMeta[onboardingData.rhythm] : "5 minutes";
 
-  function saveTodayReflection() {
+  async function saveTodayReflection() {
     if (!chapter) return;
     if (!reflection.trim()) {
       setSaveMessage("Please write a reflection before saving.");
@@ -155,6 +165,7 @@ export default function JourneyPage() {
     }
 
     setIsSaving(true);
+    setSaveMessage("");
 
     const entry: SavedJourneyEntry = {
       id: crypto.randomUUID(),
@@ -170,11 +181,19 @@ export default function JourneyPage() {
       actionStep: selectedAction,
     };
 
-    saveJourneyEntry(entry);
-
-    setLastSavedAt(entry.createdAt);
-    setSaveMessage("Today’s reflection was saved successfully.");
-    setIsSaving(false);
+    try {
+      await saveJourneyEntryToDb(entry);
+      setLastSavedAt(entry.createdAt);
+      setSaveMessage("Today’s reflection was saved successfully.");
+    } catch (err) {
+      setSaveMessage(
+        err instanceof Error
+          ? err.message
+          : "Failed to save today’s reflection."
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -226,9 +245,7 @@ export default function JourneyPage() {
                           {chapter.translated_name.name}
                         </p>
                       </div>
-                      <p className="text-3xl sm:text-4xl">
-                        {chapter.name_arabic}
-                      </p>
+                      <p className="text-3xl sm:text-4xl">{chapter.name_arabic}</p>
                     </div>
                   </div>
 
@@ -284,9 +301,7 @@ export default function JourneyPage() {
                     </button>
 
                     {lastSavedAt && (
-                      <p className="text-sm text-[#5A6B75]">
-                        Last saved just now
-                      </p>
+                      <p className="text-sm text-[#5A6B75]">Saved just now</p>
                     )}
                   </div>
 
