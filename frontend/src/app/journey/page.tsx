@@ -8,6 +8,10 @@ import {
 } from "@/lib/db";
 import type { OnboardingData, SavedJourneyEntry } from "@/types/app";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
+import {
+  defaultPathwayContent,
+  pathwayContentMap,
+} from "@/lib/pathway-content";
 
 const pathwayMeta: Record<
   string,
@@ -130,11 +134,21 @@ export default function JourneyPage() {
     fetchChapters();
   }, []);
 
-  const chapter = useMemo(() => chapters[0], [chapters]);
-
   const pathwayConfig = onboardingData?.pathway
-    ? pathwayMeta[onboardingData.pathway]
-    : null;
+  ? pathwayMeta[onboardingData.pathway]
+  : null;
+  
+  const contentConfig =
+  onboardingData?.pathway && pathwayContentMap[onboardingData.pathway]
+  ? pathwayContentMap[onboardingData.pathway]
+  : defaultPathwayContent;
+  
+  const chapter = useMemo(() => {
+    if (!chapters.length) return undefined;
+    return (
+      chapters.find((item) => item.id === contentConfig.chapterId) ?? chapters[0]
+    );
+  }, [chapters, contentConfig.chapterId]);
 
   const actionOptions =
     pathwayConfig?.actions ?? [
@@ -255,10 +269,10 @@ export default function JourneyPage() {
                         Today’s selected passage
                       </p>
                       <p className="mt-3 text-2xl leading-relaxed text-[#1E2D38] sm:text-3xl">
-                        ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ
+                        {contentConfig.verseArabic}
                       </p>
                       <p className="mt-4 text-base leading-8 text-[#5A6B75]">
-                        “All praise is for the Lord of all worlds.”
+                        “{contentConfig.translation}”
                       </p>
                     </div>
 
@@ -267,10 +281,7 @@ export default function JourneyPage() {
                         Understand
                       </p>
                       <p className="mt-3 leading-7 text-[#5A6B75]">
-                        This opening reminder begins with gratitude and
-                        recognition. It recenters the heart before anything else.
-                        The journey begins with praise, humility, and awareness
-                        of what truly sustains everything.
+                        {contentConfig.explanation}
                       </p>
                     </div>
                   </div>
