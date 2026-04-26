@@ -2,10 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Header from "@/components/Header";
-import {
-  getOnboardingProfile,
-  saveJourneyEntryToDb,
-} from "@/lib/db";
+import { getOnboardingProfile, saveJourneyEntryToDb } from "@/lib/db";
 import type { OnboardingData, SavedJourneyEntry } from "@/types/app";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
 import {
@@ -81,6 +78,23 @@ const rhythmMeta: Record<string, string> = {
   "10": "10 minutes",
 };
 
+type VerseApiResponse = {
+  verse?: {
+    verse_key?: string;
+    text_uthmani?: string;
+  };
+};
+
+type TranslationApiResponse = {
+  translations?: Array<{
+    resource_id?: number;
+    resource_name?: string;
+    language_name?: string;
+    verse_key?: string;
+    text?: string;
+  }>;
+};
+
 export default function JourneyPage() {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,6 +107,18 @@ export default function JourneyPage() {
   const [saveMessage, setSaveMessage] = useState("");
   const [lastSavedAt, setLastSavedAt] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [verseArabic, setVerseArabic] = useState("");
+  const [verseTranslation, setVerseTranslation] = useState("");
+  const [verseLoading, setVerseLoading] = useState(false);
+
+  const pathwayConfig = onboardingData?.pathway
+    ? pathwayMeta[onboardingData.pathway]
+    : null;
+
+  const contentConfig =
+    onboardingData?.pathway && pathwayContentMap[onboardingData.pathway]
+      ? pathwayContentMap[onboardingData.pathway]
+      : defaultPathwayContent;
 
   useEffect(() => {
     async function loadJourneyContext() {
@@ -101,9 +127,9 @@ export default function JourneyPage() {
         if (profile) {
           setOnboardingData(profile);
 
-          const pathwayConfig = pathwayMeta[profile.pathway];
-          if (pathwayConfig?.actions?.[0]) {
-            setSelectedAction(pathwayConfig.actions[0]);
+          const selectedPathway = pathwayMeta[profile.pathway];
+          if (selectedPathway?.actions?.[0]) {
+            setSelectedAction(selectedPathway.actions[0]);
           }
         }
       } catch (err) {
@@ -134,15 +160,51 @@ export default function JourneyPage() {
     fetchChapters();
   }, []);
 
-  const pathwayConfig = onboardingData?.pathway
-  ? pathwayMeta[onboardingData.pathway]
-  : null;
-  
-  const contentConfig =
-  onboardingData?.pathway && pathwayContentMap[onboardingData.pathway]
-  ? pathwayContentMap[onboardingData.pathway]
-  : defaultPathwayContent;
-  
+  useEffect(() => {
+    async function fetchVerseAndTranslation() {
+      if (!contentConfig.verseKey) return;
+
+      setVerseLoading(true);
+
+      try {
+        const [verseResponse, translationResponse] = await Promise.all([
+          fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/qf/verse/${contentConfig.verseKey}`
+          ),
+          fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/qf/translation/85/${contentConfig.verseKey}`
+          ),
+        ]);
+
+        if (!verseResponse.ok) {
+          throw new Error("Failed to fetch verse content");
+        }
+
+        if (!translationResponse.ok) {
+          throw new Error("Failed to fetch verse translation");
+        }
+
+        const verseData: VerseApiResponse = await verseResponse.json();
+        const translationData: TranslationApiResponse =
+          await translationResponse.json();
+
+        const verse = verseData.verse;
+        const translation = translationData.translations?.[0];
+
+        setVerseArabic(verse?.text_uthmani ?? "");
+        setVerseTranslation(translation?.text ?? "");
+      } catch (err) {
+        console.error("Failed to fetch verse or translation", err);
+        setVerseArabic("");
+        setVerseTranslation("");
+      } finally {
+        setVerseLoading(false);
+      }
+    }
+
+    fetchVerseAndTranslation();
+  }, [contentConfig.verseKey]);
+
   const chapter = useMemo(() => {
     if (!chapters.length) return undefined;
     return (
@@ -268,12 +330,21 @@ export default function JourneyPage() {
                       <p className="text-sm font-medium text-[#5A6B75]">
                         Today’s selected passage
                       </p>
-                      <p className="mt-3 text-2xl leading-relaxed text-[#1E2D38] sm:text-3xl">
-                        {contentConfig.verseArabic}
-                      </p>
-                      <p className="mt-4 text-base leading-8 text-[#5A6B75]">
-                        “{contentConfig.translation}”
-                      </p>
+
+                      {verseLoading ? (
+                        <p className="mt-4 text-sm text-[#5A6B75]">
+                          Loading verse...
+                        </p>
+                      ) : (
+                        <>
+                          <p className="mt-3 text-2xl leading-relaxed text-[#1E2D38] sm:text-3xl">
+                            {verseArabic || "Verse unavailable"}
+                          </p>
+                          <p className="mt-4 text-base leading-8 text-[#5A6B75]">
+                            “{verseTranslation || "Translation unavailable"}”
+                          </p>
+                        </>
+                      )}
                     </div>
 
                     <div className="mt-6 rounded-[1.5rem] border border-[#E3EEF1] bg-white p-5">
