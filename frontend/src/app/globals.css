@@ -38,3 +38,47 @@ body {
   background: rgba(111, 175, 207, 0.22);
   color: #1e2d38;
 }
+
+:root {
+  --bg-page: #f7fbfc;
+  --bg-page-alt: #edf7fa;
+  --surface-soft: rgba(255, 255, 255, 0.72);
+  --surface-raised: #ffffff;
+  --header-bg: rgba(247, 251, 252, 0.82);
+  --border-soft: #d8e7ec;
+  --text-strong: #1e2d38;
+  --text-muted: #5a6b75;
+  --brand-a: #6fafcf;
+  --brand-b: #8cc7c3;
+  --nav-active-bg: #1e2d38;
+  --nav-active-text: #ffffff;
+  --button-primary-bg: #1e2d38;
+  --button-primary-text: #ffffff;
+}
+
+html[data-theme="dark"] {
+  --bg-page: #09131a;
+  --bg-page-alt: #10202a;
+  --surface-soft: rgba(13, 25, 35, 0.72);
+  --surface-raised: #13222d;
+  --header-bg: rgba(9, 19, 26, 0.84);
+  --border-soft: #213747;
+  --text-strong: #edf5f8;
+  --text-muted: #a7bbc7;
+  --brand-a: #4f89a8;
+  --brand-b: #5ea7a0;
+  --nav-active-bg: #dcecf2;
+  --nav-active-text: #12202a;
+  --button-primary-bg: #dcecf2;
+  --button-primary-text: #12202a;
+}
+
+html,
+body {
+  background-color: var(--bg-page);
+  color: var(--text-strong);
+}
+
+::selection {
+  background: rgba(111, 175, 207, 0.25);
+}
