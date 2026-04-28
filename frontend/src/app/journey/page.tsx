@@ -273,28 +273,40 @@ export default function JourneyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#edf7fa_0%,#f7fbfc_45%,#f7fbfc_100%)]">
+    <div
+      className="min-h-screen"
+      style={{
+        background:
+          "radial-gradient(circle at top, var(--bg-page-alt) 0%, var(--bg-page) 45%, var(--bg-page) 100%)",
+      }}
+    >
       <Header />
 
       <main className="relative">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-[360px] bg-[radial-gradient(circle_at_top_right,rgba(140,199,195,0.16),transparent_40%),radial-gradient(circle_at_top_left,rgba(111,175,207,0.14),transparent_35%)]" />
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-[360px]"
+          style={{
+            background:
+              "radial-gradient(circle at top right, rgba(140,199,195,0.16), transparent 40%), radial-gradient(circle at top left, rgba(111,175,207,0.14), transparent 35%)",
+          }}
+        />
 
         <div className="relative z-10 mx-auto max-w-6xl px-5 py-8 sm:px-6 lg:px-8">
           <div className="mb-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#5A6B75]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
               Today’s Journey
             </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#1E2D38] sm:text-4xl">
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--text-strong)] sm:text-4xl">
               {pathwayTitle}
             </h1>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-[#5A6B75] sm:text-base">
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--text-muted)] sm:text-base">
               {pathwayDescription}
             </p>
           </div>
 
           {loading && (
-            <div className="rounded-[2rem] border border-[#d8e7ec] bg-white p-8 shadow-sm">
-              <p className="text-[#5A6B75]">Preparing today’s journey...</p>
+            <div className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-8 shadow-sm">
+              <p className="text-[var(--text-muted)]">Preparing today’s journey...</p>
             </div>
           )}
 
@@ -307,8 +319,15 @@ export default function JourneyPage() {
           {!loading && !error && chapter && (
             <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
               <section className="space-y-6">
-                <div className="overflow-hidden rounded-[2rem] border border-[#d8e7ec] bg-white shadow-[0_24px_70px_rgba(30,45,56,0.08)]">
-                  <div className="border-b border-[#E3EEF1] bg-[linear-gradient(135deg,#6FAFCF_0%,#7dbdca_42%,#8CC7C3_100%)] px-6 py-6 text-white sm:px-8">
+                <div className="overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] shadow-[0_24px_70px_rgba(30,45,56,0.08)]">
+                  <div
+                    className="border-b px-6 py-6 text-white sm:px-8"
+                    style={{
+                      borderColor: "var(--border-soft)",
+                      background:
+                        "linear-gradient(135deg, var(--brand-a) 0%, #7dbdca 42%, var(--brand-b) 100%)",
+                    }}
+                  >
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/75">
                       Read
                     </p>
@@ -326,50 +345,50 @@ export default function JourneyPage() {
                   </div>
 
                   <div className="px-6 py-6 sm:px-8">
-                    <div className="rounded-[1.5rem] bg-[#F7FBFC] p-5">
-                      <p className="text-sm font-medium text-[#5A6B75]">
+                    <div className="rounded-[1.5rem] bg-[var(--surface-soft)] p-5">
+                      <p className="text-sm font-medium text-[var(--text-muted)]">
                         Today’s selected passage
                       </p>
 
                       {verseLoading ? (
-                        <p className="mt-4 text-sm text-[#5A6B75]">
+                        <p className="mt-4 text-sm text-[var(--text-muted)]">
                           Loading verse...
                         </p>
                       ) : (
                         <>
-                          <p className="mt-3 text-2xl leading-relaxed text-[#1E2D38] sm:text-3xl">
+                          <p className="mt-3 text-2xl leading-relaxed text-[var(--text-strong)] sm:text-3xl">
                             {verseArabic || "Verse unavailable"}
                           </p>
-                          <p className="mt-4 text-base leading-8 text-[#5A6B75]">
+                          <p className="mt-4 text-base leading-8 text-[var(--text-muted)]">
                             “{verseTranslation || "Translation unavailable"}”
                           </p>
                         </>
                       )}
                     </div>
 
-                    <div className="mt-6 rounded-[1.5rem] border border-[#E3EEF1] bg-white p-5">
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#5A6B75]">
+                    <div className="mt-6 rounded-[1.5rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-5">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
                         Understand
                       </p>
-                      <p className="mt-3 leading-7 text-[#5A6B75]">
+                      <p className="mt-3 leading-7 text-[var(--text-muted)]">
                         {contentConfig.explanation}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-[2rem] border border-[#d8e7ec] bg-white p-6 shadow-[0_24px_70px_rgba(30,45,56,0.06)] sm:p-8">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#5A6B75]">
+                <div className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_24px_70px_rgba(30,45,56,0.06)] sm:p-8">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
                     Reflect
                   </p>
-                  <h3 className="mt-3 text-2xl font-semibold tracking-tight text-[#1E2D38]">
+                  <h3 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--text-strong)]">
                     {reflectionPrompt}
                   </h3>
                   <textarea
                     value={reflection}
                     onChange={(e) => setReflection(e.target.value)}
                     placeholder="Write a private reflection for yourself..."
-                    className="mt-5 min-h-[160px] w-full rounded-[1.5rem] border border-[#D6E8EF] bg-[#FBFEFF] px-5 py-4 text-sm text-[#1E2D38] outline-none transition placeholder:text-[#8BA0AA] focus:border-[#6FAFCF] focus:ring-4 focus:ring-[#6FAFCF]/10"
+                    className="mt-5 min-h-[160px] w-full rounded-[1.5rem] border border-[var(--border-soft)] bg-[var(--surface-soft)] px-5 py-4 text-sm text-[var(--text-strong)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--brand-a)] focus:ring-4 focus:ring-[rgba(111,175,207,0.10)]"
                   />
 
                   <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -377,13 +396,13 @@ export default function JourneyPage() {
                       type="button"
                       onClick={saveTodayReflection}
                       disabled={isSaving}
-                      className="rounded-full bg-[#1E2D38] px-6 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="rounded-full bg-[var(--button-primary-bg)] px-6 py-3 text-sm font-medium text-[var(--button-primary-text)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {isSaving ? "Saving..." : "Save today’s reflection"}
                     </button>
 
                     {lastSavedAt && (
-                      <p className="text-sm text-[#5A6B75]">Saved just now</p>
+                      <p className="text-sm text-[var(--text-muted)]">Saved just now</p>
                     )}
                   </div>
 
@@ -402,14 +421,14 @@ export default function JourneyPage() {
               </section>
 
               <aside className="space-y-6">
-                <div className="rounded-[2rem] border border-[#d8e7ec] bg-white p-6 shadow-[0_24px_70px_rgba(30,45,56,0.06)] sm:p-7">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#5A6B75]">
+                <div className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_24px_70px_rgba(30,45,56,0.06)] sm:p-7">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
                     Act
                   </p>
-                  <h3 className="mt-3 text-2xl font-semibold tracking-tight text-[#1E2D38]">
+                  <h3 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--text-strong)]">
                     Choose one small step
                   </h3>
-                  <p className="mt-3 text-sm leading-7 text-[#5A6B75]">
+                  <p className="mt-3 text-sm leading-7 text-[var(--text-muted)]">
                     Let today’s passage become something you carry into real life.
                   </p>
 
@@ -424,16 +443,16 @@ export default function JourneyPage() {
                           onClick={() => setSelectedAction(option)}
                           className={`w-full rounded-[1.25rem] border px-4 py-4 text-left transition ${
                             isSelected
-                              ? "border-[#6FAFCF] bg-[linear-gradient(180deg,#f7fcff_0%,#eef8fb_100%)] shadow-sm"
-                              : "border-[#E3EEF1] bg-white hover:border-[#CFE2E8] hover:bg-[#FBFEFF]"
+                              ? "border-[var(--brand-a)] bg-[var(--surface-soft)] shadow-sm"
+                              : "border-[var(--border-soft)] bg-[var(--surface-raised)] hover:bg-[var(--surface-soft)]"
                           }`}
                         >
                           <div className="flex items-start gap-3">
                             <div
                               className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
                                 isSelected
-                                  ? "border-[#6FAFCF] bg-[#6FAFCF]"
-                                  : "border-[#C9DCE3] bg-white"
+                                  ? "border-[var(--brand-a)] bg-[var(--brand-a)]"
+                                  : "border-[var(--border-soft)] bg-[var(--surface-raised)]"
                               }`}
                             >
                               {isSelected && (
@@ -441,7 +460,7 @@ export default function JourneyPage() {
                               )}
                             </div>
 
-                            <p className="text-sm leading-6 text-[#1E2D38]">
+                            <p className="text-sm leading-6 text-[var(--text-strong)]">
                               {option}
                             </p>
                           </div>
@@ -451,8 +470,8 @@ export default function JourneyPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[2rem] border border-[#d8e7ec] bg-white p-6 shadow-[0_24px_70px_rgba(30,45,56,0.06)] sm:p-7">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#5A6B75]">
+                <div className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_24px_70px_rgba(30,45,56,0.06)] sm:p-7">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
                     Journey Snapshot
                   </p>
 
@@ -467,11 +486,11 @@ export default function JourneyPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[2rem] border border-dashed border-[#D6E8EF] bg-[#F7FBFC] p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#5A6B75]">
+                <div className="rounded-[2rem] border border-dashed border-[var(--border-soft)] bg-[var(--surface-soft)] p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
                     Gentle note
                   </p>
-                  <p className="mt-3 text-sm leading-7 text-[#5A6B75]">
+                  <p className="mt-3 text-sm leading-7 text-[var(--text-muted)]">
                     Returning with sincerity matters more than doing a lot. Let
                     this be a calm beginning, not a heavy burden.
                   </p>
@@ -487,9 +506,11 @@ export default function JourneyPage() {
 
 function SnapshotRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-[#E3EEF1] bg-[#FBFEFF] px-4 py-4">
-      <span className="text-sm text-[#5A6B75]">{label}</span>
-      <span className="text-sm font-medium text-[#1E2D38]">{value}</span>
+    <div className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-[var(--border-soft)] bg-[var(--surface-soft)] px-4 py-4">
+      <span className="text-sm text-[var(--text-muted)]">{label}</span>
+      <span className="text-sm font-medium text-[var(--text-strong)]">
+        {value}
+      </span>
     </div>
   );
 }

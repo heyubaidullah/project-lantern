@@ -180,13 +180,13 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#edf7fa_0%,#f7fbfc_45%,#f7fbfc_100%)]">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,var(--bg-page-alt)_0%,var(--bg-page)_45%,var(--bg-page)_100%)] text-[var(--text-strong)]">
       <main className="relative">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(circle_at_top_right,rgba(140,199,195,0.18),transparent_40%),radial-gradient(circle_at_top_left,rgba(111,175,207,0.14),transparent_35%)]" />
 
         <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl items-center px-5 py-10 sm:px-6 lg:px-8">
           <div className="grid w-full gap-8 lg:grid-cols-[0.95fr_1.05fr]">
-            <section className="flex flex-col justify-between rounded-[2rem] border border-[#d8e7ec] bg-[linear-gradient(135deg,#6FAFCF_0%,#7dbdca_42%,#8CC7C3_100%)] p-7 text-white shadow-[0_30px_80px_rgba(30,45,56,0.10)] sm:p-9">
+            <section className="flex flex-col justify-between rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(135deg,var(--brand-a)_0%,#7dbdca_42%,var(--brand-b)_100%)] p-7 text-white shadow-[0_30px_80px_rgba(30,45,56,0.10)] sm:p-9">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/75">
                   Project Lantern
@@ -221,7 +221,7 @@ export default function OnboardingPage() {
               </div>
             </section>
 
-            <section className="rounded-[2rem] border border-[#d8e7ec] bg-white/95 p-6 shadow-[0_30px_80px_rgba(30,45,56,0.08)] backdrop-blur-sm sm:p-8">
+            <section className="rounded-[2rem] border border-[var(--border-soft)] bg-[color:var(--surface-raised)]/95 p-6 shadow-[0_30px_80px_rgba(30,45,56,0.08)] backdrop-blur-sm sm:p-8">
               {step === 1 && (
                 <StepShell
                   eyebrow="Step 1 of 4"
@@ -308,12 +308,12 @@ export default function OnboardingPage() {
                 </div>
               )}
 
-              <div className="mt-8 flex flex-col gap-3 border-t border-[#E3EEF1] pt-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mt-8 flex flex-col gap-3 border-t border-[var(--border-soft)] pt-6 sm:flex-row sm:items-center sm:justify-between">
                 <button
                   type="button"
                   onClick={prevStep}
                   disabled={step === 1 || isSubmitting}
-                  className="rounded-full border border-[#D6E8EF] bg-[#F7FBFC] px-5 py-3 text-sm font-medium text-[#1E2D38] transition hover:bg-[#EEF6F8] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-full border border-[var(--border-soft)] bg-[var(--surface-soft)] px-5 py-3 text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--surface-raised)] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Back
                 </button>
@@ -323,7 +323,7 @@ export default function OnboardingPage() {
                     type="button"
                     onClick={nextStep}
                     disabled={!canContinue || isSubmitting}
-                    className="rounded-full bg-[#1E2D38] px-6 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-full bg-[var(--button-primary-bg)] px-6 py-3 text-sm font-medium text-[var(--button-primary-text)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Continue
                   </button>
@@ -332,7 +332,7 @@ export default function OnboardingPage() {
                     type="button"
                     onClick={saveAndBeginJourney}
                     disabled={!canContinue || isSubmitting}
-                    className="rounded-full bg-[#1E2D38] px-6 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-full bg-[var(--button-primary-bg)] px-6 py-3 text-sm font-medium text-[var(--button-primary-text)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isSubmitting ? "Saving..." : "Begin journey"}
                   </button>

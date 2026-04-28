@@ -68,7 +68,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#edf7fa_0%,#f7fbfc_45%,#f7fbfc_100%)]">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,var(--bg-page-alt)_0%,var(--bg-page)_45%,var(--bg-page)_100%)] text-[var(--text-strong)]">
       <Header />
 
       <main className="relative">
@@ -79,72 +79,72 @@ export default function HomePage() {
 
           <section className="mt-10">
             <div className="mb-5">
-              <h2 className="text-2xl font-semibold text-[#1E2D38]">
+              <h2 className="text-2xl font-semibold text-[var(--text-strong)]">
                 Recent Reflection
               </h2>
-              <p className="mt-2 text-[#5A6B75]">
+              <p className="mt-2 text-[var(--text-muted)]">
                 Your most recent saved step from the journey.
               </p>
             </div>
 
             {latestEntry ? (
-              <div className="rounded-[2rem] border border-[#d8e7ec] bg-white p-6 shadow-[0_24px_70px_rgba(30,45,56,0.06)] sm:p-8">
+              <div className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_24px_70px_rgba(30,45,56,0.06)] sm:p-8">
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                   <div className="max-w-3xl">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-[#EEF6F8] px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-[#5A6B75]">
+                      <span className="rounded-full bg-[var(--surface-soft)] px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-[var(--text-muted)]">
                         {latestEntry.pathwayTitle}
                       </span>
-                      <span className="rounded-full bg-[#EEF6F8] px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-[#5A6B75]">
+                      <span className="rounded-full bg-[var(--surface-soft)] px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-[var(--text-muted)]">
                         {latestEntry.chapterName}
                       </span>
                     </div>
 
-                    <h3 className="mt-4 text-2xl font-semibold tracking-tight text-[#1E2D38]">
+                    <h3 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--text-strong)]">
                       {latestEntry.chapterName}
                     </h3>
 
-                    <p className="mt-4 text-sm font-medium uppercase tracking-[0.18em] text-[#5A6B75]">
+                    <p className="mt-4 text-sm font-medium uppercase tracking-[0.18em] text-[var(--text-muted)]">
                       Reflection
                     </p>
-                    <p className="mt-2 text-base leading-8 text-[#1E2D38]">
+                    <p className="mt-2 text-base leading-8 text-[var(--text-strong)]">
                       {latestEntry.reflection}
                     </p>
 
-                    <p className="mt-5 text-sm font-medium uppercase tracking-[0.18em] text-[#5A6B75]">
+                    <p className="mt-5 text-sm font-medium uppercase tracking-[0.18em] text-[var(--text-muted)]">
                       Chosen action
                     </p>
-                    <p className="mt-2 text-base leading-8 text-[#1E2D38]">
+                    <p className="mt-2 text-base leading-8 text-[var(--text-strong)]">
                       {latestEntry.actionStep}
                     </p>
                   </div>
 
-                  <div className="rounded-[1.5rem] border border-[#E3EEF1] bg-[#FBFEFF] px-5 py-4 lg:min-w-[220px]">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5A6B75]">
+                  <div className="rounded-[1.5rem] border border-[var(--border-soft)] bg-[var(--surface-soft)] px-5 py-4 lg:min-w-[220px]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">
                       Saved
                     </p>
-                    <p className="mt-2 text-sm text-[#1E2D38]">
+                    <p className="mt-2 text-sm text-[var(--text-strong)]">
                       {formatSavedTime(latestEntry.createdAt)}
                     </p>
 
-                    <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[#5A6B75]">
+                    <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">
                       Rhythm
                     </p>
-                    <p className="mt-2 text-sm text-[#1E2D38]">
+                    <p className="mt-2 text-sm text-[var(--text-strong)]">
                       {latestEntry.rhythm}
                     </p>
 
-                    <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[#5A6B75]">
+                    <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">
                       Language
                     </p>
-                    <p className="mt-2 text-sm text-[#1E2D38]">
+                    <p className="mt-2 text-sm text-[var(--text-strong)]">
                       {latestEntry.language}
                     </p>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="rounded-[2rem] border border-dashed border-[#D6E8EF] bg-white p-6 text-[#5A6B75] shadow-sm">
+              <div className="rounded-[2rem] border border-dashed border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 text-[var(--text-muted)] shadow-sm">
                 No reflection saved yet. Complete one journey and save your
                 first entry.
               </div>
@@ -153,15 +153,15 @@ export default function HomePage() {
 
           <section className="mt-10">
             <div className="mb-5">
-              <h2 className="text-2xl font-semibold text-[#1E2D38]">
+              <h2 className="text-2xl font-semibold text-[var(--text-strong)]">
                 Chapter Preview
               </h2>
-              <p className="mt-2 text-[#5A6B75]">
+              <p className="mt-2 text-[var(--text-muted)]">
                 A first look at content flowing through the app.
               </p>
             </div>
 
-            {loading && <p className="text-[#5A6B75]">Loading chapters...</p>}
+            {loading && <p className="text-[var(--text-muted)]">Loading chapters...</p>}
 
             {error && (
               <p className="rounded-xl bg-red-50 p-4 text-red-700">{error}</p>
@@ -178,10 +178,10 @@ export default function HomePage() {
 
           <section className="mt-12">
             <div className="mb-5">
-              <h2 className="text-2xl font-semibold text-[#1E2D38]">
+              <h2 className="text-2xl font-semibold text-[var(--text-strong)]">
                 Guided Pathways
               </h2>
-              <p className="mt-2 text-[#5A6B75]">
+              <p className="mt-2 text-[var(--text-muted)]">
                 Structured journeys designed to keep the experience welcoming and
                 non-overwhelming.
               </p>
@@ -209,10 +209,10 @@ export default function HomePage() {
 
           <section className="mt-12">
             <div className="mb-5">
-              <h2 className="text-2xl font-semibold text-[#1E2D38]">
+              <h2 className="text-2xl font-semibold text-[var(--text-strong)]">
                 Progress Snapshot
               </h2>
-              <p className="mt-2 text-[#5A6B75]">
+              <p className="mt-2 text-[var(--text-muted)]">
                 A simple view of consistency, saved notes, and pathway growth.
               </p>
             </div>
@@ -236,8 +236,8 @@ export default function HomePage() {
             </div>
           </section>
 
-          <footer className="mt-14 border-t border-[#E3EEF1] pt-6">
-            <p className="max-w-3xl text-sm leading-6 text-[#5A6B75]">
+          <footer className="mt-14 border-t border-[var(--border-soft)] pt-6">
+            <p className="max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
               Built to make daily engagement feel calm, welcoming, and practical
               — one small step at a time.
             </p>
