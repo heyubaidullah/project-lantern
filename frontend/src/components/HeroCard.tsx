@@ -12,7 +12,7 @@ export default function HeroCard() {
           <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--heading-accent-soft)]">
             One Ayah Forward
           </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--heading-accent)] sm:text-5xl">
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--accent-gold)] sm:text-5xl">
             A calm daily journey with Al-Huda.
           </h1>
           <p className="mt-5 max-w-2xl text-sm leading-8 text-[var(--text-muted)] sm:text-base">
@@ -23,7 +23,7 @@ export default function HeroCard() {
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
               href="/onboarding"
-              className="rounded-full bg-[var(--button-primary-bg)] px-5 py-3 text-sm font-medium text-[var(--button-primary-text)] transition hover:opacity-90"
+              className="rounded-full bg-[var(--accent-gold)] px-5 py-3 text-sm font-medium text-[var(--button-primary-text)] transition hover:opacity-90"
             >
               Discover Al-Huda
             </Link>
@@ -41,10 +41,10 @@ export default function HeroCard() {
           style={{ borderColor: "var(--border-soft)" }}
         >
           <div className="rounded-[1.5rem] bg-[var(--surface-soft)] p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-a)]">
               Daily rhythm
             </p>
-            <p className="mt-2 text-lg font-semibold text-[var(--heading-accent)]">
+            <p className="mt-2 text-lg font-semibold text-[var(--accent-gold)]">
               Small, welcoming, consistent
             </p>
             <p className="mt-2 text-sm leading-7 text-[var(--text-muted)]">
@@ -54,10 +54,10 @@ export default function HeroCard() {
           </div>
 
           <div className="rounded-[1.5rem] bg-[var(--surface-soft)] p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-a)]">
               Experience
             </p>
-            <p className="mt-2 text-lg font-semibold text-[var(--heading-accent)]">
+            <p className="mt-2 text-lg font-semibold text-[var(--accent-gold)]">
               Read, reflect, act
             </p>
             <p className="mt-2 text-sm leading-7 text-[var(--text-muted)]">
