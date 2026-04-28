@@ -8,13 +8,13 @@ const navItems = [
   { label: "Home", href: "/" },
   { label: "Today", href: "/journey" },
   { label: "Progress", href: "/progress" },
+  { label: "About", href: "/about" },
 ];
 
 export default function Header() {
   const pathname = usePathname();
 
   function isActive(href: string) {
-    if (href === "/") return pathname === "/";
     return pathname === href;
   }
 

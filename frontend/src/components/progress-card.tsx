@@ -1,21 +1,23 @@
-type ProgressCardProps = {
-  label: string;
-  value: string;
-  description: string;
-};
-
 export function ProgressCard({
   label,
   value,
   description,
-}: ProgressCardProps) {
+}: {
+  label: string;
+  value: string;
+  description: string;
+}) {
   return (
-    <article className="rounded-2xl border border-[#E3EEF1] bg-white p-5 shadow-sm">
-      <p className="text-sm font-medium uppercase tracking-[0.14em] text-[#5A6B75]">
+    <article className="rounded-[1.75rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-5 shadow-[0_18px_45px_rgba(30,45,56,0.05)]">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">
         {label}
       </p>
-      <p className="mt-3 text-3xl font-semibold text-[#1E2D38]">{value}</p>
-      <p className="mt-2 text-[#5A6B75]">{description}</p>
+      <p className="mt-3 text-3xl font-semibold tracking-tight text-[var(--text-strong)]">
+        {value}
+      </p>
+      <p className="mt-3 text-sm leading-7 text-[var(--text-muted)]">
+        {description}
+      </p>
     </article>
   );
 }

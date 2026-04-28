@@ -7,6 +7,7 @@ import { ChapterPreviewCard } from "@/components/chapter-preview-card";
 import { PathwayCard } from "@/components/pathway-card";
 import { ReflectionCard } from "@/components/reflection-card";
 import { ProgressCard } from "@/components/progress-card";
+import AppFooter from "@/components/AppFooter";
 import { getJourneyEntriesFromDb } from "@/lib/db";
 import type { SavedJourneyEntry } from "@/types/app";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
@@ -16,6 +17,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [savedEntries, setSavedEntries] = useState<SavedJourneyEntry[]>([]);
+  const [visibleChapterCount, setVisibleChapterCount] = useState(6);
 
   useEffect(() => {
     async function fetchChapters() {
@@ -56,6 +58,8 @@ export default function HomePage() {
   const uniquePathways = new Set(
     savedEntries.map((entry) => entry.pathwayTitle)
   ).size;
+  const visibleChapters = chapters.slice(0, visibleChapterCount);
+  const hasMoreChapters = visibleChapterCount < chapters.length;
 
   function formatSavedTime(isoDate: string) {
     const date = new Date(isoDate);
@@ -67,12 +71,32 @@ export default function HomePage() {
     });
   }
 
+  function handleShowMore() {
+    setVisibleChapterCount((prev) => Math.min(prev + 6, chapters.length));
+  }
+
+  function handleShowLess() {
+    setVisibleChapterCount(6);
+  }
+
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,var(--bg-page-alt)_0%,var(--bg-page)_45%,var(--bg-page)_100%)] text-[var(--text-strong)]">
+    <div
+      className="min-h-screen"
+      style={{
+        background:
+          "radial-gradient(circle at top, var(--bg-page-alt) 0%, var(--bg-page) 45%, var(--bg-page) 100%)",
+      }}
+    >
       <Header />
 
       <main className="relative">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(circle_at_top_right,rgba(140,199,195,0.18),transparent_40%),radial-gradient(circle_at_top_left,rgba(111,175,207,0.14),transparent_35%)]" />
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-[420px]"
+          style={{
+            background:
+              "radial-gradient(circle at top right, rgba(140,199,195,0.18), transparent 40%), radial-gradient(circle at top left, rgba(111,175,207,0.14), transparent 35%)",
+          }}
+        />
 
         <div className="relative z-10 mx-auto max-w-6xl px-6 py-8 sm:py-10">
           <HeroCard />
@@ -152,13 +176,15 @@ export default function HomePage() {
           </section>
 
           <section className="mt-10">
-            <div className="mb-5">
-              <h2 className="text-2xl font-semibold text-[var(--text-strong)]">
-                Chapter Preview
-              </h2>
-              <p className="mt-2 text-[var(--text-muted)]">
-                A first look at content flowing through the app.
-              </p>
+            <div className="mb-5 flex items-end justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-semibold text-[var(--text-strong)]">
+                  Chapter Preview
+                </h2>
+                <p className="mt-2 text-[var(--text-muted)]">
+                  A first look at content flowing through the app.
+                </p>
+              </div>
             </div>
 
             {loading && <p className="text-[var(--text-muted)]">Loading chapters...</p>}
@@ -168,11 +194,35 @@ export default function HomePage() {
             )}
 
             {!loading && !error && (
-              <div className="grid gap-4 md:grid-cols-2">
-                {chapters.map((chapter) => (
-                  <ChapterPreviewCard key={chapter.id} chapter={chapter} />
-                ))}
-              </div>
+              <>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {visibleChapters.map((chapter) => (
+                    <ChapterPreviewCard key={chapter.id} chapter={chapter} />
+                  ))}
+                </div>
+
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {hasMoreChapters && (
+                    <button
+                      type="button"
+                      onClick={handleShowMore}
+                      className="rounded-full bg-[var(--button-primary-bg)] px-5 py-3 text-sm font-medium text-[var(--button-primary-text)] transition hover:opacity-90"
+                    >
+                      Show more chapters
+                    </button>
+                  )}
+
+                  {visibleChapterCount > 6 && (
+                    <button
+                      type="button"
+                      onClick={handleShowLess}
+                      className="rounded-full border border-[var(--border-soft)] bg-[var(--surface-soft)] px-5 py-3 text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--surface-raised)]"
+                    >
+                      Show less
+                    </button>
+                  )}
+                </div>
+              </>
             )}
           </section>
 
@@ -235,15 +285,10 @@ export default function HomePage() {
               />
             </div>
           </section>
-
-          <footer className="mt-14 border-t border-[var(--border-soft)] pt-6">
-            <p className="max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
-              Built to make daily engagement feel calm, welcoming, and practical
-              — one small step at a time.
-            </p>
-          </footer>
         </div>
       </main>
+
+      <AppFooter />
     </div>
   );
 }

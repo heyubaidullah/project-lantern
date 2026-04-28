@@ -117,7 +117,6 @@ const totalSteps = 4;
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
-
   const [intent, setIntent] = useState("");
   const [language, setLanguage] = useState("");
   const [rhythm, setRhythm] = useState("");
@@ -180,13 +179,32 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,var(--bg-page-alt)_0%,var(--bg-page)_45%,var(--bg-page)_100%)] text-[var(--text-strong)]">
+    <div
+      className="min-h-screen"
+      style={{
+        background:
+          "radial-gradient(circle at top, var(--bg-page-alt) 0%, var(--bg-page) 45%, var(--bg-page) 100%)",
+      }}
+    >
       <main className="relative">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(circle_at_top_right,rgba(140,199,195,0.18),transparent_40%),radial-gradient(circle_at_top_left,rgba(111,175,207,0.14),transparent_35%)]" />
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-[420px]"
+          style={{
+            background:
+              "radial-gradient(circle at top right, rgba(140,199,195,0.18), transparent 40%), radial-gradient(circle at top left, rgba(111,175,207,0.14), transparent 35%)",
+          }}
+        />
 
         <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl items-center px-5 py-10 sm:px-6 lg:px-8">
           <div className="grid w-full gap-8 lg:grid-cols-[0.95fr_1.05fr]">
-            <section className="flex flex-col justify-between rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(135deg,var(--brand-a)_0%,#7dbdca_42%,var(--brand-b)_100%)] p-7 text-white shadow-[0_30px_80px_rgba(30,45,56,0.10)] sm:p-9">
+            <section
+              className="flex flex-col justify-between rounded-[2rem] border p-7 text-white shadow-[0_30px_80px_rgba(30,45,56,0.10)] sm:p-9"
+              style={{
+                borderColor: "var(--border-soft)",
+                background:
+                  "linear-gradient(135deg, var(--brand-a) 0%, #7dbdca 42%, var(--brand-b) 100%)",
+              }}
+            >
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/75">
                   Project Lantern
@@ -221,7 +239,7 @@ export default function OnboardingPage() {
               </div>
             </section>
 
-            <section className="rounded-[2rem] border border-[var(--border-soft)] bg-[color:var(--surface-raised)]/95 p-6 shadow-[0_30px_80px_rgba(30,45,56,0.08)] backdrop-blur-sm sm:p-8">
+            <section className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)]/95 p-6 shadow-[0_30px_80px_rgba(30,45,56,0.08)] backdrop-blur-sm sm:p-8">
               {step === 1 && (
                 <StepShell
                   eyebrow="Step 1 of 4"

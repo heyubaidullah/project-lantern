@@ -1,18 +1,30 @@
-type PathwayCardProps = {
+import Link from "next/link";
+
+export function PathwayCard({
+  title,
+  description,
+}: {
   title: string;
   description: string;
-};
-
-export function PathwayCard({ title, description }: PathwayCardProps) {
+}) {
   return (
-    <article className="rounded-2xl border border-[#E3EEF1] bg-white p-5 shadow-sm">
-      <div className="inline-flex rounded-full bg-[#EEF6F8] px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-[#5A6B75]">
-        Pathway
-      </div>
+    <article className="rounded-[1.75rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-5 shadow-[0_18px_45px_rgba(30,45,56,0.05)]">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">
+        Guided pathway
+      </p>
+      <h3 className="mt-3 text-xl font-semibold tracking-tight text-[var(--text-strong)]">
+        {title}
+      </h3>
+      <p className="mt-3 text-sm leading-7 text-[var(--text-muted)]">
+        {description}
+      </p>
 
-      <h3 className="mt-4 text-xl font-semibold text-[#1E2D38]">{title}</h3>
-
-      <p className="mt-2 leading-7 text-[#5A6B75]">{description}</p>
+      <Link
+        href="/onboarding"
+        className="mt-5 inline-flex rounded-full border border-[var(--border-soft)] bg-[var(--surface-soft)] px-4 py-2 text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--surface-raised)]"
+      >
+        Explore
+      </Link>
     </article>
   );
 }

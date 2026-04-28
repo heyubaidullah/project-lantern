@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Header from "@/components/Header";
+import AppFooter from "@/components/AppFooter";
 import { getJourneyEntriesFromDb } from "@/lib/db";
 import type { SavedJourneyEntry } from "@/types/app";
 
@@ -47,11 +48,23 @@ export default function ProgressPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,var(--bg-page-alt)_0%,var(--bg-page)_45%,var(--bg-page)_100%)] text-[var(--text-strong)]">
+    <div
+      className="min-h-screen"
+      style={{
+        background:
+          "radial-gradient(circle at top, var(--bg-page-alt) 0%, var(--bg-page) 45%, var(--bg-page) 100%)",
+      }}
+    >
       <Header />
 
       <main className="relative">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-[320px] bg-[radial-gradient(circle_at_top_right,rgba(140,199,195,0.16),transparent_40%),radial-gradient(circle_at_top_left,rgba(111,175,207,0.14),transparent_35%)]" />
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-[320px]"
+          style={{
+            background:
+              "radial-gradient(circle at top right, rgba(140,199,195,0.16), transparent 40%), radial-gradient(circle at top left, rgba(111,175,207,0.14), transparent 35%)",
+          }}
+        />
 
         <div className="relative z-10 mx-auto max-w-6xl px-5 py-8 sm:px-6 lg:px-8">
           <div className="mb-8">
@@ -105,7 +118,8 @@ export default function ProgressPage() {
                     Reflection History
                   </h2>
                   <p className="mt-2 text-[var(--text-muted)]">
-                    Your recent saved entries, displayed in reverse chronological order.
+                    Your recent saved entries, displayed in reverse chronological
+                    order.
                   </p>
                 </div>
 
@@ -183,6 +197,8 @@ export default function ProgressPage() {
           )}
         </div>
       </main>
+
+      <AppFooter />
     </div>
   );
 }
@@ -204,7 +220,9 @@ function StatCard({
       <p className="mt-3 text-3xl font-semibold tracking-tight text-[var(--text-strong)]">
         {value}
       </p>
-      <p className="mt-3 text-sm leading-7 text-[var(--text-muted)]">{description}</p>
+      <p className="mt-3 text-sm leading-7 text-[var(--text-muted)]">
+        {description}
+      </p>
     </div>
   );
 }

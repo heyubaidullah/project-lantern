@@ -142,7 +142,9 @@ export default function ThemeToggle() {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={`Theme: ${activeOption.label}`}
-        title={`Theme: ${activeOption.label}${theme === "system" ? ` (${resolvedTheme})` : ""}`}
+        title={`Theme: ${activeOption.label}${
+          theme === "system" ? ` (${resolvedTheme})` : ""
+        }`}
       >
         <SunIcon />
       </button>

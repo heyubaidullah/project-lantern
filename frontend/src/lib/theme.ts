@@ -31,10 +31,3 @@ export function applyTheme(theme: ThemeMode) {
   root.style.colorScheme = resolvedTheme;
   window.localStorage.setItem(THEME_STORAGE_KEY, theme);
 }
-
-export function initializeTheme() {
-  if (typeof window === "undefined") return;
-
-  const storedTheme = getStoredTheme();
-  applyTheme(storedTheme);
-}

@@ -1,27 +1,23 @@
-import { ReactNode } from "react";
-
-type StepShellProps = {
-  eyebrow: string;
-  title: string;
-  description: string;
-  children: ReactNode;
-};
-
 export default function StepShell({
   eyebrow,
   title,
   description,
   children,
-}: StepShellProps) {
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
   return (
     <section>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#5A6B75]">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)]">
         {eyebrow}
       </p>
-      <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[#1E2D38] sm:text-4xl">
+      <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--text-strong)]">
         {title}
       </h2>
-      <p className="mt-3 max-w-2xl text-sm leading-7 text-[#5A6B75] sm:text-base">
+      <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--text-muted)]">
         {description}
       </p>
 
