@@ -38,3 +38,29 @@ def debug_qf_config():
         "client_id_prefix": settings.qf_client_id[:8] if settings.qf_client_id else None,
         "client_secret_length": len(settings.qf_client_secret) if settings.qf_client_secret else 0,
     }
+
+@app.get("/api/qf/verse/{verse_key}")
+async def get_quran_verse(verse_key: str):
+    try:
+        data = await qf_client.get_verse_by_key(verse_key)
+        return data
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+@app.get("/api/qf/translation/{translation_id}/{verse_key}")
+async def get_quran_translation(translation_id: int, verse_key: str):
+    try:
+        data = await qf_client.get_translation_by_verse_key(
+            translation_id, verse_key
+        )
+        return data
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+@app.get("/api/qf/translation-resources")
+async def get_quran_translation_resources():
+    try:
+        data = await qf_client.get_translation_resources()
+        return data
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
