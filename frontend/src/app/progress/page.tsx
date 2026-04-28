@@ -71,7 +71,7 @@ export default function ProgressPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
               Progress
             </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--text-strong)] sm:text-4xl">
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--heading-accent)] sm:text-4xl">
               Your journey so far
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--text-muted)] sm:text-base">
@@ -114,12 +114,11 @@ export default function ProgressPage() {
 
               <section className="mt-10">
                 <div className="mb-5">
-                  <h2 className="text-2xl font-semibold text-[var(--text-strong)]">
+                  <h2 className="text-2xl font-semibold text-[var(--heading-accent)]">
                     Reflection History
                   </h2>
                   <p className="mt-2 text-[var(--text-muted)]">
-                    Your recent saved entries, displayed in reverse chronological
-                    order.
+                    Your recent saved entries, displayed in reverse chronological order.
                   </p>
                 </div>
 
@@ -146,18 +145,18 @@ export default function ProgressPage() {
                               </span>
                             </div>
 
-                            <h3 className="mt-4 text-xl font-semibold tracking-tight text-[var(--text-strong)]">
+                            <h3 className="mt-4 text-xl font-semibold tracking-tight text-[var(--heading-accent)]">
                               {entry.chapterName}
                             </h3>
 
-                            <p className="mt-4 text-sm font-medium uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                            <p className="mt-4 text-sm font-medium uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
                               Reflection
                             </p>
                             <p className="mt-2 text-base leading-8 text-[var(--text-strong)]">
                               {entry.reflection}
                             </p>
 
-                            <p className="mt-5 text-sm font-medium uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                            <p className="mt-5 text-sm font-medium uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
                               Chosen action
                             </p>
                             <p className="mt-2 text-base leading-8 text-[var(--text-strong)]">
@@ -166,21 +165,21 @@ export default function ProgressPage() {
                           </div>
 
                           <div className="rounded-[1.5rem] border border-[var(--border-soft)] bg-[var(--surface-soft)] px-5 py-4 lg:min-w-[220px]">
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
                               Saved
                             </p>
                             <p className="mt-2 text-sm text-[var(--text-strong)]">
                               {formatSavedTime(entry.createdAt)}
                             </p>
 
-                            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
                               Rhythm
                             </p>
                             <p className="mt-2 text-sm text-[var(--text-strong)]">
                               {entry.rhythm}
                             </p>
 
-                            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
                               Language
                             </p>
                             <p className="mt-2 text-sm text-[var(--text-strong)]">
@@ -214,15 +213,13 @@ function StatCard({
 }) {
   return (
     <div className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_20px_60px_rgba(30,45,56,0.06)]">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
         {label}
       </p>
-      <p className="mt-3 text-3xl font-semibold tracking-tight text-[var(--text-strong)]">
+      <p className="mt-3 text-3xl font-semibold tracking-tight text-[var(--heading-accent)]">
         {value}
       </p>
-      <p className="mt-3 text-sm leading-7 text-[var(--text-muted)]">
-        {description}
-      </p>
+      <p className="mt-3 text-sm leading-7 text-[var(--text-muted)]">{description}</p>
     </div>
   );
 }

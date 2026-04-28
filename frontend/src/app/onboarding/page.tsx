@@ -198,13 +198,17 @@ export default function OnboardingPage() {
         <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl items-center px-5 py-10 sm:px-6 lg:px-8">
           <div className="grid w-full gap-8 lg:grid-cols-[0.95fr_1.05fr]">
             <section
-              className="flex flex-col justify-between rounded-[2rem] border p-7 text-white shadow-[0_30px_80px_rgba(30,45,56,0.10)] sm:p-9"
+              className="relative flex flex-col justify-between overflow-hidden rounded-[2rem] border p-7 text-white shadow-[0_30px_80px_rgba(30,45,56,0.10)] sm:p-9"
               style={{
                 borderColor: "var(--border-soft)",
                 background:
                   "linear-gradient(135deg, var(--brand-a) 0%, #7dbdca 42%, var(--brand-b) 100%)",
               }}
             >
+              <div className="pointer-events-none absolute right-[-16px] top-[-12px] text-8xl text-white/10">
+                ۝
+              </div>
+
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/75">
                   Project Lantern

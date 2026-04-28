@@ -103,7 +103,7 @@ export default function HomePage() {
 
           <section className="mt-10">
             <div className="mb-5">
-              <h2 className="text-2xl font-semibold text-[var(--text-strong)]">
+              <h2 className="text-2xl font-semibold text-[var(--heading-accent)]">
                 Recent Reflection
               </h2>
               <p className="mt-2 text-[var(--text-muted)]">
@@ -124,18 +124,18 @@ export default function HomePage() {
                       </span>
                     </div>
 
-                    <h3 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--text-strong)]">
+                    <h3 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--heading-accent)]">
                       {latestEntry.chapterName}
                     </h3>
 
-                    <p className="mt-4 text-sm font-medium uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                    <p className="mt-4 text-sm font-medium uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
                       Reflection
                     </p>
                     <p className="mt-2 text-base leading-8 text-[var(--text-strong)]">
                       {latestEntry.reflection}
                     </p>
 
-                    <p className="mt-5 text-sm font-medium uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                    <p className="mt-5 text-sm font-medium uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
                       Chosen action
                     </p>
                     <p className="mt-2 text-base leading-8 text-[var(--text-strong)]">
@@ -144,21 +144,21 @@ export default function HomePage() {
                   </div>
 
                   <div className="rounded-[1.5rem] border border-[var(--border-soft)] bg-[var(--surface-soft)] px-5 py-4 lg:min-w-[220px]">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
                       Saved
                     </p>
                     <p className="mt-2 text-sm text-[var(--text-strong)]">
                       {formatSavedTime(latestEntry.createdAt)}
                     </p>
 
-                    <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                    <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
                       Rhythm
                     </p>
                     <p className="mt-2 text-sm text-[var(--text-strong)]">
                       {latestEntry.rhythm}
                     </p>
 
-                    <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">
+                    <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
                       Language
                     </p>
                     <p className="mt-2 text-sm text-[var(--text-strong)]">
@@ -178,7 +178,7 @@ export default function HomePage() {
           <section className="mt-10">
             <div className="mb-5 flex items-end justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-semibold text-[var(--text-strong)]">
+                <h2 className="text-2xl font-semibold text-[var(--heading-accent)]">
                   Chapter Preview
                 </h2>
                 <p className="mt-2 text-[var(--text-muted)]">
@@ -228,7 +228,7 @@ export default function HomePage() {
 
           <section className="mt-12">
             <div className="mb-5">
-              <h2 className="text-2xl font-semibold text-[var(--text-strong)]">
+              <h2 className="text-2xl font-semibold text-[var(--heading-accent)]">
                 Guided Pathways
               </h2>
               <p className="mt-2 text-[var(--text-muted)]">
@@ -259,7 +259,7 @@ export default function HomePage() {
 
           <section className="mt-12">
             <div className="mb-5">
-              <h2 className="text-2xl font-semibold text-[var(--text-strong)]">
+              <h2 className="text-2xl font-semibold text-[var(--heading-accent)]">
                 Progress Snapshot
               </h2>
               <p className="mt-2 text-[var(--text-muted)]">
