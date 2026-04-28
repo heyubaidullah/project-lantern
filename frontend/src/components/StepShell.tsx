@@ -11,10 +11,10 @@ export default function StepShell({
 }) {
   return (
     <section>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)]">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--heading-accent-soft)]">
         {eyebrow}
       </p>
-      <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--text-strong)]">
+      <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--heading-accent)]">
         {title}
       </h2>
       <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--text-muted)]">

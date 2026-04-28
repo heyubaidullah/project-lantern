@@ -146,3 +146,8 @@ html[data-theme="dark"] {
   --accent-gold: #d3b16a;
   --accent-gold-soft: rgba(211, 177, 106, 0.14);
 }
+
+html[data-theme="dark"] {
+  --heading-accent: #e7f3f8;
+  --heading-accent-soft: #b8d2de;
+}

@@ -17,26 +17,35 @@ export default function AppFooter() {
     <footer className="mt-16 border-t border-[var(--border-soft)] bg-[var(--footer-bg)] text-[var(--footer-text)]">
       <div className="mx-auto max-w-6xl px-5 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-[1.2fr_0.8fr_0.8fr]">
-          <div>
-            <Link href="/" className="inline-flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-[linear-gradient(135deg,var(--brand-a)_0%,var(--brand-b)_100%)] text-lg text-white shadow-sm">
-                ۝
-              </div>
+          <div className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.02] p-6">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute right-4 top-3 z-0 text-[110px] leading-none text-white/5"
+            >
+              ۝
+            </div>
 
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--footer-muted)]">
-                  One Ayah Forward
-                </p>
-                <p className="text-lg font-semibold tracking-tight text-white">
-                  Al-Huda
-                </p>
-              </div>
-            </Link>
+            <div className="relative z-10">
+              <Link href="/" className="inline-flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-[linear-gradient(135deg,var(--brand-a)_0%,var(--brand-b)_100%)] text-lg text-white shadow-sm">
+                  ۝
+                </div>
 
-            <p className="mt-5 max-w-md text-sm leading-7 text-[var(--footer-muted)]">
-              A calm and practical companion for building a lasting daily
-              relationship with the Quran, one small step at a time.
-            </p>
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--footer-muted)]">
+                    One Ayah Forward
+                  </p>
+                  <p className="text-lg font-semibold tracking-tight text-white">
+                    Al-Huda
+                  </p>
+                </div>
+              </Link>
+
+              <p className="mt-5 max-w-md text-sm leading-7 text-[var(--footer-muted)]">
+                A calm and practical companion for building a lasting daily
+                relationship with the Quran, one small step at a time.
+              </p>
+            </div>
           </div>
 
           <div>

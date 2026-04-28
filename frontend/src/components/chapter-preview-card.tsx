@@ -7,7 +7,12 @@ export function ChapterPreviewCard({ chapter }: { chapter: Chapter }) {
       : null;
 
   return (
-    <article className="rounded-[1.75rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-5 shadow-[0_18px_45px_rgba(30,45,56,0.05)]">
+    <a
+      href={`https://quran.com/${chapter.id}`}
+      target="_blank"
+      rel="noreferrer"
+      className="block rounded-[1.75rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-5 shadow-[0_18px_45px_rgba(30,45,56,0.05)] transition hover:-translate-y-0.5 hover:border-[var(--brand-a)] hover:shadow-[0_24px_60px_rgba(30,45,56,0.08)]"
+    >
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">
@@ -47,6 +52,6 @@ export function ChapterPreviewCard({ chapter }: { chapter: Chapter }) {
           </p>
         </div>
       </div>
-    </article>
+    </a>
   );
 }

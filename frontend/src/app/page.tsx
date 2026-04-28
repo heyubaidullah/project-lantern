@@ -239,14 +239,17 @@ export default function HomePage() {
 
             <div className="grid gap-4 md:grid-cols-3">
               <PathwayCard
+                icon="🔁"
                 title="Reconnect After Ramadan"
                 description="A gentle path for users trying to carry their momentum into everyday life."
               />
               <PathwayCard
+                icon="❕"
                 title="Start Understanding"
                 description="A beginner-friendly track for users who want more clarity in their own language."
               />
               <PathwayCard
+                icon="💫"
                 title="Mercy and Hope"
                 description="A reflective pathway centered on comfort, healing, and returning with hope."
               />

@@ -211,7 +211,7 @@ export default function OnboardingPage() {
 
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/75">
-                  Project Lantern
+                  Al-Huda
                 </p>
                 <h1 className="mt-3 text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">
                   Begin gently.
