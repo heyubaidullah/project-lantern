@@ -8,7 +8,11 @@ import { PathwayCard } from "@/components/pathway-card";
 import { ReflectionCard } from "@/components/reflection-card";
 import { ProgressCard } from "@/components/progress-card";
 import AppFooter from "@/components/AppFooter";
-import { getJourneyEntriesFromDb } from "@/lib/db";
+import {
+  getCurrentUser,
+  getJourneyEntriesFromDb,
+  getOnboardingProfile,
+} from "@/lib/db";
 import type { SavedJourneyEntry } from "@/types/app";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
 
@@ -18,6 +22,8 @@ export default function HomePage() {
   const [error, setError] = useState("");
   const [savedEntries, setSavedEntries] = useState<SavedJourneyEntry[]>([]);
   const [visibleChapterCount, setVisibleChapterCount] = useState(6);
+  const [primaryCtaLabel, setPrimaryCtaLabel] = useState("Discover Al-Huda");
+  const [primaryCtaHref, setPrimaryCtaHref] = useState("/login");
 
   useEffect(() => {
     async function fetchChapters() {
@@ -44,13 +50,39 @@ export default function HomePage() {
         const entries = await getJourneyEntriesFromDb();
         setSavedEntries(entries);
       } catch (err) {
-        console.error("Failed to fetch saved journey entries", err);
         setSavedEntries([]);
+      }
+    }
+
+    async function resolvePrimaryCta() {
+      try {
+        const user = await getCurrentUser();
+
+        if (!user) {
+          setPrimaryCtaLabel("Discover Al-Huda");
+          setPrimaryCtaHref("/login");
+          return;
+        }
+
+        const onboarding = await getOnboardingProfile();
+
+        if (!onboarding) {
+          setPrimaryCtaLabel("Begin Setup");
+          setPrimaryCtaHref("/onboarding");
+          return;
+        }
+
+        setPrimaryCtaLabel("Today's Reflection");
+        setPrimaryCtaHref("/journey");
+      } catch {
+        setPrimaryCtaLabel("Discover Al-Huda");
+        setPrimaryCtaHref("/login");
       }
     }
 
     fetchChapters();
     fetchSavedEntries();
+    resolvePrimaryCta();
   }, []);
 
   const latestEntry = useMemo(() => savedEntries[0], [savedEntries]);
@@ -99,7 +131,10 @@ export default function HomePage() {
         />
 
         <div className="relative z-10 mx-auto max-w-6xl px-6 py-8 sm:py-10">
-          <HeroCard />
+          <HeroCard
+            primaryCtaLabel={primaryCtaLabel}
+            primaryCtaHref={primaryCtaHref}
+          />
 
           <section className="mt-10">
             <div className="mb-5">

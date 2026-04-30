@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "@/components/ThemeToggle";
+import { getCurrentUser, getProfile, getUserStreak } from "@/lib/db";
+import type { UserProfile, UserStreak } from "@/types/app";
 
 const navItems = [
   { label: "Home", href: "/" },
@@ -13,10 +16,38 @@ const navItems = [
 
 export default function Header() {
   const pathname = usePathname();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [streak, setStreak] = useState<UserStreak | null>(null);
+
+  useEffect(() => {
+    async function loadAuthState() {
+      try {
+        const user = await getCurrentUser();
+        setIsAuthenticated(Boolean(user));
+
+        if (user) {
+          const [profileData, streakData] = await Promise.all([
+            getProfile(),
+            getUserStreak(),
+          ]);
+
+          setProfile(profileData);
+          setStreak(streakData);
+        }
+      } catch (error) {
+        console.error("Failed to load auth state", error);
+      }
+    }
+
+    loadAuthState();
+  }, []);
 
   function isActive(href: string) {
     return pathname === href;
   }
+
+  const firstName = profile?.first_name ?? "User";
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border-soft)] bg-[var(--header-bg)]/90 backdrop-blur-xl">
@@ -62,14 +93,34 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-3">
+          {isAuthenticated && (
+            <div className="hidden rounded-full border border-[var(--border-soft)] bg-[var(--surface-soft)] px-4 py-2 text-sm font-medium text-[var(--text-strong)] md:flex">
+              🔥 {streak?.current_streak ?? 0}
+            </div>
+          )}
+
           <ThemeToggle />
 
-          <Link
-            href="/journey"
-            className="rounded-full bg-[var(--button-primary-bg)] px-4 py-2 text-sm font-medium text-[var(--button-primary-text)] transition hover:opacity-90"
-          >
-            Begin today
-          </Link>
+          {isAuthenticated ? (
+            <div className="flex items-center gap-2">
+              <span className="hidden text-sm text-[var(--text-muted)] md:inline">
+                {firstName}
+              </span>
+              <Link
+                href="/logout"
+                className="rounded-full border border-[var(--border-soft)] bg-[var(--surface-soft)] px-4 py-2 text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--surface-raised)]"
+              >
+                Log out
+              </Link>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-full bg-[var(--button-primary-bg)] px-4 py-2 text-sm font-medium text-[var(--button-primary-text)] transition hover:opacity-90"
+            >
+              Sign in
+            </Link>
+          )}
         </div>
       </div>
     </header>

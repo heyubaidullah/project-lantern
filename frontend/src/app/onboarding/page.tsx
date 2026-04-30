@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import OnboardingProgress from "@/components/OnboardingProgress";
 import OptionCard from "@/components/OptionCard";
 import StepShell from "@/components/StepShell";
-import { saveOnboardingProfile } from "@/lib/db";
+import { getCurrentUser, getOnboardingProfile, saveOnboardingProfile } from "@/lib/db";
 import type { OnboardingData } from "@/types/app";
 
 type IntentOption = {
@@ -132,6 +133,23 @@ export default function OnboardingPage() {
     return false;
   }, [step, intent, language, rhythm, pathway]);
 
+  const router = useRouter();
+
+  useEffect(() => {
+    async function guardPage() {
+      const user = await getCurrentUser();
+      if (!user) {
+        router.replace("/login");
+      }
+      const onboarding = await getOnboardingProfile();
+      if (onboarding) {
+        router.replace("/journey");
+      }
+    }
+
+    guardPage();
+  }, [router]);
+
   function nextStep() {
     if (step < totalSteps && canContinue) {
       setStep((prev) => prev + 1);
@@ -160,7 +178,7 @@ export default function OnboardingPage() {
 
     try {
       await saveOnboardingProfile(onboardingData);
-      window.location.href = "/journey";
+      router.push("/journey");
     } catch (error) {
       setSubmitError(
         error instanceof Error

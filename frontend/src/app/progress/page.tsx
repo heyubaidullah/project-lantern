@@ -1,19 +1,28 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import AppFooter from "@/components/AppFooter";
-import { getJourneyEntriesFromDb } from "@/lib/db";
+import { getCurrentUser, getJourneyEntriesFromDb } from "@/lib/db";
 import type { SavedJourneyEntry } from "@/types/app";
 
 export default function ProgressPage() {
   const [entries, setEntries] = useState<SavedJourneyEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     async function loadEntries() {
       try {
+        const user = await getCurrentUser();
+
+        if (!user) {
+          router.replace("/login");
+          return;
+        }
+
         const data = await getJourneyEntriesFromDb();
         setEntries(data);
       } catch (err) {
@@ -28,7 +37,7 @@ export default function ProgressPage() {
     }
 
     loadEntries();
-  }, []);
+  }, [router]);
 
   const totalEntries = entries.length;
   const totalPathways = useMemo(

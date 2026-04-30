@@ -1,6 +1,14 @@
 import Link from "next/link";
 
-export default function HeroCard() {
+type HeroCardProps = {
+  primaryCtaLabel?: string;
+  primaryCtaHref?: string;
+};
+
+export default function HeroCard({
+  primaryCtaLabel = "Discover Al-Huda",
+  primaryCtaHref = "/onboarding",
+}: HeroCardProps) {
   return (
     <section className="relative overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] shadow-[0_30px_80px_rgba(30,45,56,0.08)]">
       <div className="pointer-events-none absolute right-[-18px] top-[-22px] text-[140px] leading-none text-[var(--accent-gold-soft)]">
@@ -22,10 +30,10 @@ export default function HeroCard() {
 
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
-              href="/onboarding"
+              href={primaryCtaHref}
               className="rounded-full bg-[var(--accent-gold)] px-5 py-3 text-sm font-medium text-[var(--button-primary-text)] transition hover:opacity-90"
             >
-              Discover Al-Huda
+              {primaryCtaLabel}
             </Link>
             <Link
               href="/progress"
