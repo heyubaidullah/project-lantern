@@ -7,13 +7,16 @@ import { ChapterPreviewCard } from "@/components/chapter-preview-card";
 import { PathwayCard } from "@/components/pathway-card";
 import { ReflectionCard } from "@/components/reflection-card";
 import { ProgressCard } from "@/components/progress-card";
+import HelpfulResourcesSection from "@/components/HelpfulResourcesSection";
 import AppFooter from "@/components/AppFooter";
 import {
   getCurrentUser,
   getJourneyEntriesFromDb,
   getOnboardingProfile,
+  getProfile,
+  getUserStreak,
 } from "@/lib/db";
-import type { SavedJourneyEntry } from "@/types/app";
+import type { SavedJourneyEntry, UserProfile, UserStreak } from "@/types/app";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
 
 export default function HomePage() {
@@ -24,6 +27,9 @@ export default function HomePage() {
   const [visibleChapterCount, setVisibleChapterCount] = useState(6);
   const [primaryCtaLabel, setPrimaryCtaLabel] = useState("Discover Al-Huda");
   const [primaryCtaHref, setPrimaryCtaHref] = useState("/login");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [streak, setStreak] = useState<UserStreak | null>(null);
 
   useEffect(() => {
     async function fetchChapters() {
@@ -49,22 +55,32 @@ export default function HomePage() {
       try {
         const entries = await getJourneyEntriesFromDb();
         setSavedEntries(entries);
-      } catch (err) {
+      } catch {
         setSavedEntries([]);
       }
     }
 
-    async function resolvePrimaryCta() {
+    async function resolveHomeState() {
       try {
         const user = await getCurrentUser();
 
         if (!user) {
           setPrimaryCtaLabel("Discover Al-Huda");
           setPrimaryCtaHref("/login");
+          setIsAuthenticated(false);
           return;
         }
 
-        const onboarding = await getOnboardingProfile();
+        setIsAuthenticated(true);
+
+        const [onboarding, profileData, streakData] = await Promise.all([
+          getOnboardingProfile(),
+          getProfile(),
+          getUserStreak(),
+        ]);
+
+        setProfile(profileData);
+        setStreak(streakData);
 
         if (!onboarding) {
           setPrimaryCtaLabel("Begin Setup");
@@ -77,12 +93,13 @@ export default function HomePage() {
       } catch {
         setPrimaryCtaLabel("Discover Al-Huda");
         setPrimaryCtaHref("/login");
+        setIsAuthenticated(false);
       }
     }
 
     fetchChapters();
     fetchSavedEntries();
-    resolvePrimaryCta();
+    resolveHomeState();
   }, []);
 
   const latestEntry = useMemo(() => savedEntries[0], [savedEntries]);
@@ -134,6 +151,9 @@ export default function HomePage() {
           <HeroCard
             primaryCtaLabel={primaryCtaLabel}
             primaryCtaHref={primaryCtaHref}
+            isAuthenticated={isAuthenticated}
+            firstName={profile?.first_name}
+            streakCount={streak?.current_streak ?? 0}
           />
 
           <section className="mt-10">
@@ -147,7 +167,7 @@ export default function HomePage() {
             </div>
 
             {latestEntry ? (
-              <div className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_24px_70px_rgba(30,45,56,0.06)] sm:p-8">
+              <div className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_24px_70px_rgba(30,45,56,0.06)] transition hover:shadow-[0_30px_85px_rgba(30,45,56,0.08)] sm:p-8">
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                   <div className="max-w-3xl">
                     <div className="flex flex-wrap items-center gap-2">
@@ -290,6 +310,8 @@ export default function HomePage() {
               />
             </div>
           </section>
+
+          <HelpfulResourcesSection />
 
           <section className="mt-12">
             <ReflectionCard />

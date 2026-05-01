@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function ReflectionCard() {
   return (
-    <section className="relative overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_20px_60px_rgba(30,45,56,0.06)] sm:p-8">
+    <section className="relative overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_20px_60px_rgba(30,45,56,0.06)] transition hover:shadow-[0_26px_75px_rgba(30,45,56,0.08)] sm:p-8">
       <div className="pointer-events-none absolute right-[-14px] top-[-18px] text-8xl leading-none text-[var(--accent-gold-soft)]">
         ۝
       </div>

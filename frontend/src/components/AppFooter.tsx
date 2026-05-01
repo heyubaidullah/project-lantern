@@ -5,6 +5,8 @@ const navItems = [
   { label: "Today", href: "/journey" },
   { label: "Progress", href: "/progress" },
   { label: "About", href: "/about" },
+  { label: "Privacy", href: "/privacy" },
+  { label: "Disclaimer", href: "/disclaimer" },
 ];
 
 const externalLinks = [
