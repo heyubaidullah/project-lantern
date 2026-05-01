@@ -7,9 +7,15 @@ import { ChapterPreviewCard } from "@/components/chapter-preview-card";
 import { PathwayCard } from "@/components/pathway-card";
 import { ReflectionCard } from "@/components/reflection-card";
 import { ProgressCard } from "@/components/progress-card";
+import HelpfulResourcesSection from "@/components/HelpfulResourcesSection";
 import AppFooter from "@/components/AppFooter";
-import { getJourneyEntriesFromDb } from "@/lib/db";
-import type { SavedJourneyEntry } from "@/types/app";
+import {
+  getCurrentUser,
+  getJourneyEntriesFromDb,
+  getOnboardingProfile,
+  getProfile,
+} from "@/lib/db";
+import type { SavedJourneyEntry, UserProfile } from "@/types/app";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
 
 export default function HomePage() {
@@ -18,6 +24,10 @@ export default function HomePage() {
   const [error, setError] = useState("");
   const [savedEntries, setSavedEntries] = useState<SavedJourneyEntry[]>([]);
   const [visibleChapterCount, setVisibleChapterCount] = useState(6);
+  const [primaryCtaLabel, setPrimaryCtaLabel] = useState("Discover Al-Huda");
+  const [primaryCtaHref, setPrimaryCtaHref] = useState("/login");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     async function fetchChapters() {
@@ -43,14 +53,49 @@ export default function HomePage() {
       try {
         const entries = await getJourneyEntriesFromDb();
         setSavedEntries(entries);
-      } catch (err) {
-        console.error("Failed to fetch saved journey entries", err);
+      } catch {
         setSavedEntries([]);
+      }
+    }
+
+    async function resolveHomeState() {
+      try {
+        const user = await getCurrentUser();
+
+        if (!user) {
+          setPrimaryCtaLabel("Discover Al-Huda");
+          setPrimaryCtaHref("/login");
+          setIsAuthenticated(false);
+          return;
+        }
+
+        setIsAuthenticated(true);
+
+        const [onboarding, profileData] = await Promise.all([
+          getOnboardingProfile(),
+          getProfile(),
+        ]);
+
+        setProfile(profileData);
+
+        if (!onboarding) {
+          setPrimaryCtaLabel("Begin Setup");
+          setPrimaryCtaHref("/onboarding");
+          return;
+        }
+
+        setPrimaryCtaLabel("Today's Reflection");
+        setPrimaryCtaHref("/journey");
+      } catch {
+        setPrimaryCtaLabel("Discover Al-Huda");
+        setPrimaryCtaHref("/login");
+        setIsAuthenticated(false);
       }
     }
 
     fetchChapters();
     fetchSavedEntries();
+    resolveHomeState();
   }, []);
 
   const latestEntry = useMemo(() => savedEntries[0], [savedEntries]);
@@ -99,7 +144,12 @@ export default function HomePage() {
         />
 
         <div className="relative z-10 mx-auto max-w-6xl px-6 py-8 sm:py-10">
-          <HeroCard />
+          <HeroCard
+            primaryCtaLabel={primaryCtaLabel}
+            primaryCtaHref={primaryCtaHref}
+            isAuthenticated={isAuthenticated}
+            firstName={profile?.first_name}
+          />
 
           <section className="mt-10">
             <div className="mb-5">
@@ -112,7 +162,7 @@ export default function HomePage() {
             </div>
 
             {latestEntry ? (
-              <div className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_24px_70px_rgba(30,45,56,0.06)] sm:p-8">
+              <div className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_24px_70px_rgba(30,45,56,0.06)] transition hover:shadow-[0_30px_85px_rgba(30,45,56,0.08)] sm:p-8">
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                   <div className="max-w-3xl">
                     <div className="flex flex-wrap items-center gap-2">
@@ -173,6 +223,35 @@ export default function HomePage() {
                 first entry.
               </div>
             )}
+          </section>
+          
+          <section className="mt-12">
+            <div className="mb-5">
+              <h2 className="text-2xl font-semibold text-[var(--heading-accent)]">
+                Progress Snapshot
+              </h2>
+              <p className="mt-2 text-[var(--text-muted)]">
+                A simple view of consistency, saved notes, and pathway growth.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <ProgressCard
+                label="Saved Entries"
+                value={String(savedCount)}
+                description="Private reflections and action steps saved over time."
+              />
+              <ProgressCard
+                label="Pathways Used"
+                value={String(uniquePathways)}
+                description="Different guided pathways you have moved through."
+              />
+              <ProgressCard
+                label="Latest Focus"
+                value={latestEntry?.chapterName ?? "—"}
+                description="Your most recently saved chapter from the journey."
+              />
+            </div>
           </section>
 
           <section className="mt-10">
@@ -256,38 +335,12 @@ export default function HomePage() {
             </div>
           </section>
 
+          <HelpfulResourcesSection />
+
           <section className="mt-12">
             <ReflectionCard />
           </section>
 
-          <section className="mt-12">
-            <div className="mb-5">
-              <h2 className="text-2xl font-semibold text-[var(--heading-accent)]">
-                Progress Snapshot
-              </h2>
-              <p className="mt-2 text-[var(--text-muted)]">
-                A simple view of consistency, saved notes, and pathway growth.
-              </p>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-3">
-              <ProgressCard
-                label="Saved Entries"
-                value={String(savedCount)}
-                description="Private reflections and action steps saved over time."
-              />
-              <ProgressCard
-                label="Pathways Used"
-                value={String(uniquePathways)}
-                description="Different guided pathways you have moved through."
-              />
-              <ProgressCard
-                label="Latest Focus"
-                value={latestEntry?.chapterName ?? "—"}
-                description="Your most recently saved chapter from the journey."
-              />
-            </div>
-          </section>
         </div>
       </main>
 

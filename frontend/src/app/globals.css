@@ -151,3 +151,15 @@ html[data-theme="dark"] {
   --heading-accent: #e7f3f8;
   --heading-accent-soft: #b8d2de;
 }
+
+:root {
+  --heading-accent: #b89446;
+  --heading-accent-soft: #4b7692;
+  --section-kicker: #4b7692;
+}
+
+html[data-theme="dark"] {
+  --heading-accent: #e0bf76;
+  --heading-accent-soft: #9fc3d8;
+  --section-kicker: #9fc3d8;
+}

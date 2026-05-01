@@ -11,7 +11,7 @@ export function ChapterPreviewCard({ chapter }: { chapter: Chapter }) {
       href={`https://quran.com/${chapter.id}`}
       target="_blank"
       rel="noreferrer"
-      className="block rounded-[1.75rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-5 shadow-[0_18px_45px_rgba(30,45,56,0.05)] transition hover:-translate-y-0.5 hover:border-[var(--brand-a)] hover:shadow-[0_24px_60px_rgba(30,45,56,0.08)]"
+      className="group block rounded-[1.75rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-5 shadow-[0_18px_45px_rgba(30,45,56,0.05)] transition hover:-translate-y-1 hover:border-[var(--brand-a)] hover:shadow-[0_24px_60px_rgba(30,45,56,0.08)]"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -35,7 +35,7 @@ export function ChapterPreviewCard({ chapter }: { chapter: Chapter }) {
 
       <div className="mt-5 grid grid-cols-2 gap-3">
         <div className="rounded-[1rem] bg-[var(--surface-soft)] px-4 py-3">
-          <p className="text-xs uppercase tracking-[0.16em] text-[var(--text-muted)]">
+          <p className="text-xs uppercase tracking-[0.16em] text-[var(--heading-accent-soft)]">
             Verses
           </p>
           <p className="mt-1 text-sm font-medium text-[var(--text-strong)]">
@@ -44,7 +44,7 @@ export function ChapterPreviewCard({ chapter }: { chapter: Chapter }) {
         </div>
 
         <div className="rounded-[1rem] bg-[var(--surface-soft)] px-4 py-3">
-          <p className="text-xs uppercase tracking-[0.16em] text-[var(--text-muted)]">
+          <p className="text-xs uppercase tracking-[0.16em] text-[var(--heading-accent-soft)]">
             Place
           </p>
           <p className="mt-1 text-sm font-medium capitalize text-[var(--text-strong)]">

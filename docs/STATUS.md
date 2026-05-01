@@ -1,17 +1,12 @@
-
----
-
-## `docs/STATUS.md`
-```md
 # Project Status
 
 ## Product
 - Product name: **Al-Huda**
 - Internal codename: **Project Lantern**
-- Current target release: **v1.0.0-alpha**
+- Current target release: **v1.0.0-beta**
 
 ## Overall State
-The core MVP is working end to end.
+The product is now working end to end as a deployed, authenticated, personalized beta experience.
 
 ## Completed
 
@@ -22,6 +17,7 @@ The core MVP is working end to end.
 - frontend and backend environment files configured
 - Quran Foundation API access requested and configured
 - production content access working
+- production deployment working
 
 ### Backend
 - FastAPI backend running locally
@@ -37,50 +33,81 @@ The core MVP is working end to end.
 - journey page built
 - progress page built
 - about page built
+- profile page built
+- settings page built
+- privacy page built
+- disclaimer page built
 - header built
 - footer built
 - theme toggle built
 - theme rollout completed across main pages
 - chapter preview cards shortened and made clickable
 - pathway cards visually improved
+- helpful resources section added
+- signed-in experience improved
+- heading accent styling implemented across major pages
 
-### Persistence
+### Authentication
+- Supabase Auth integrated
+- Google sign-in working
+- magic link sign-in working
+- logout flow working
+- protected routes working
+
+### Persistence / Personalization
 - onboarding persistence implemented
 - reflection persistence implemented
 - progress/history connected to saved data
+- user-linked profiles implemented
+- first name and last name collected during onboarding
+- first-name personalization implemented across key pages
+- journey progression stored per user
+- streak tracking stored per user
 
-## Current v1 Alpha Scope
+### QA / Release Readiness
+- Netlify deployment verified
+- production auth flow verified
+- successful QA completed across core flows
+
+## Current v1 Beta Scope
 
 Included:
-- onboarding
-- daily journey
+- guided onboarding
+- authenticated user flow
+- personalized journey setup
+- pathway-based daily journey flow
 - live verse + translation
 - save reflection
-- progress/history
+- per-user progress/history
+- per-user progression
+- streak tracking
 - about page
+- profile page
+- settings page
+- privacy page
+- disclaimer page
 - theme support
 - polished app shell
 
 Not included yet:
-- full user authentication
-- streak tracking
-- user profile dropdown
-- first-name personalization
-- welcome/login landing page
-- groups/friends
+- editable profile details
+- fully interactive settings controls
+- auth-aware guided pathway CTA behavior on Home
+- groups/friends/circles
 - native mobile apps
+- database-managed pathway authoring
 
 ## Branch Status
-Current frontend polish branch:
-- `feat/frontend-dev`
-
-Next planned branch:
+Current release branch:
 - `feat/auth-and-profile`
 
-## Release Recommendation
-Ship `v1.0.0-alpha` without auth.
+Next planned branch:
+- `feat/post-beta-polish`
+
+## Release
+Ship `v1.0.0-beta`.
 
 Reason:
-- core experience is already strong
-- auth adds significant scope
-- alpha should validate the product flow first
+- the product now supports real users, real persistence, real progression, and successful QA
+- the beta label accurately reflects that the product is highly functional but still evolving
+- remaining work is mostly enhancement-oriented rather than core-flow blocking

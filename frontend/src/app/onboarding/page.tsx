@@ -1,10 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import OnboardingProgress from "@/components/OnboardingProgress";
 import OptionCard from "@/components/OptionCard";
 import StepShell from "@/components/StepShell";
-import { saveOnboardingProfile } from "@/lib/db";
+import {
+  getCurrentUser,
+  getOnboardingProfile,
+  saveOnboardingProfile,
+} from "@/lib/db";
 import type { OnboardingData } from "@/types/app";
 
 type IntentOption = {
@@ -113,10 +118,14 @@ const pathwayOptions: PathwayOption[] = [
   },
 ];
 
-const totalSteps = 4;
+const totalSteps = 5;
 
 export default function OnboardingPage() {
+  const router = useRouter();
+
   const [step, setStep] = useState(1);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [intent, setIntent] = useState("");
   const [language, setLanguage] = useState("");
   const [rhythm, setRhythm] = useState("");
@@ -124,13 +133,32 @@ export default function OnboardingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
+  useEffect(() => {
+    async function guardPage() {
+      const user = await getCurrentUser();
+
+      if (!user) {
+        router.replace("/login");
+        return;
+      }
+
+      const onboarding = await getOnboardingProfile();
+      if (onboarding) {
+        router.replace("/journey");
+      }
+    }
+
+    guardPage();
+  }, [router]);
+
   const canContinue = useMemo(() => {
-    if (step === 1) return Boolean(intent);
-    if (step === 2) return Boolean(language);
-    if (step === 3) return Boolean(rhythm);
-    if (step === 4) return Boolean(pathway);
+    if (step === 1) return Boolean(firstName.trim());
+    if (step === 2) return Boolean(intent);
+    if (step === 3) return Boolean(language);
+    if (step === 4) return Boolean(rhythm);
+    if (step === 5) return Boolean(pathway);
     return false;
-  }, [step, intent, language, rhythm, pathway]);
+  }, [step, firstName, intent, language, rhythm, pathway]);
 
   function nextStep() {
     if (step < totalSteps && canContinue) {
@@ -151,6 +179,8 @@ export default function OnboardingPage() {
     setSubmitError("");
 
     const onboardingData: OnboardingData = {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
       intent,
       language,
       rhythm,
@@ -160,7 +190,7 @@ export default function OnboardingPage() {
 
     try {
       await saveOnboardingProfile(onboardingData);
-      window.location.href = "/journey";
+      router.push("/journey");
     } catch (error) {
       setSubmitError(
         error instanceof Error
@@ -172,6 +202,8 @@ export default function OnboardingPage() {
   }
 
   const summary = {
+    firstName: firstName || "—",
+    lastName: lastName || "—",
     intent: intentOptions.find((item) => item.id === intent)?.title ?? "—",
     language: languageOptions.find((item) => item.id === language)?.title ?? "—",
     rhythm: rhythmOptions.find((item) => item.id === rhythm)?.title ?? "—",
@@ -211,7 +243,7 @@ export default function OnboardingPage() {
 
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/75">
-                  Al-Huda
+                  Project Lantern
                 </p>
                 <h1 className="mt-3 text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">
                   Begin gently.
@@ -235,6 +267,8 @@ export default function OnboardingPage() {
                 </p>
 
                 <div className="mt-4 grid gap-3">
+                  <SummaryRow label="First name" value={summary.firstName} />
+                  <SummaryRow label="Last name" value={summary.lastName} />
                   <SummaryRow label="Intent" value={summary.intent} />
                   <SummaryRow label="Language" value={summary.language} />
                   <SummaryRow label="Daily rhythm" value={summary.rhythm} />
@@ -246,7 +280,51 @@ export default function OnboardingPage() {
             <section className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)]/95 p-6 shadow-[0_30px_80px_rgba(30,45,56,0.08)] backdrop-blur-sm sm:p-8">
               {step === 1 && (
                 <StepShell
-                  eyebrow="Step 1 of 4"
+                  eyebrow="Step 1 of 5"
+                  title="What should we call you?"
+                  description="This helps the experience feel more personal and welcoming each time you return."
+                >
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label
+                        htmlFor="firstName"
+                        className="mb-2 block text-sm font-medium text-[var(--heading-accent)]"
+                      >
+                        First name
+                      </label>
+                      <input
+                        id="firstName"
+                        type="text"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="Enter your first name"
+                        className="w-full rounded-[1.25rem] border border-[var(--border-soft)] bg-[var(--surface-soft)] px-4 py-3 text-sm text-[var(--text-strong)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--brand-a)]"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="lastName"
+                        className="mb-2 block text-sm font-medium text-[var(--heading-accent)]"
+                      >
+                        Last name
+                      </label>
+                      <input
+                        id="lastName"
+                        type="text"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Enter your last name"
+                        className="w-full rounded-[1.25rem] border border-[var(--border-soft)] bg-[var(--surface-soft)] px-4 py-3 text-sm text-[var(--text-strong)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--brand-a)]"
+                      />
+                    </div>
+                  </div>
+                </StepShell>
+              )}
+
+              {step === 2 && (
+                <StepShell
+                  eyebrow="Step 2 of 5"
                   title="Why are you here today?"
                   description="Choose the intention that feels closest to where you are right now."
                 >
@@ -264,9 +342,9 @@ export default function OnboardingPage() {
                 </StepShell>
               )}
 
-              {step === 2 && (
+              {step === 3 && (
                 <StepShell
-                  eyebrow="Step 2 of 4"
+                  eyebrow="Step 3 of 5"
                   title="Choose your preferred language"
                   description="We want the daily experience to feel clear, familiar, and approachable."
                 >
@@ -284,9 +362,9 @@ export default function OnboardingPage() {
                 </StepShell>
               )}
 
-              {step === 3 && (
+              {step === 4 && (
                 <StepShell
-                  eyebrow="Step 3 of 4"
+                  eyebrow="Step 4 of 5"
                   title="Choose a daily rhythm"
                   description="Start with a pace that feels sustainable. You can always adjust it later."
                 >
@@ -304,9 +382,9 @@ export default function OnboardingPage() {
                 </StepShell>
               )}
 
-              {step === 4 && (
+              {step === 5 && (
                 <StepShell
-                  eyebrow="Step 4 of 4"
+                  eyebrow="Step 5 of 5"
                   title="Choose your starting pathway"
                   description="Pick a guided path that gives your first days a gentle and meaningful direction."
                 >

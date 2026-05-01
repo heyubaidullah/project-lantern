@@ -1,6 +1,26 @@
 import Link from "next/link";
 
-export default function HeroCard() {
+type HeroCardProps = {
+  primaryCtaLabel?: string;
+  primaryCtaHref?: string;
+  isAuthenticated?: boolean;
+  firstName?: string | null;
+};
+
+export default function HeroCard({
+  primaryCtaLabel = "Discover Al-Huda",
+  primaryCtaHref = "/onboarding",
+  isAuthenticated = false,
+  firstName = null,
+}: HeroCardProps) {
+  const heroTitle = isAuthenticated
+    ? `Welcome back${firstName ? `, ${firstName}` : ""}.`
+    : "A calm daily journey with Al-Huda.";
+
+  const heroSubtitle = isAuthenticated
+    ? "Your journey is ready. Return to today’s reflection, continue your pathway, and keep your rhythm going one small step at a time."
+    : "Read one meaningful passage, understand it with clarity, reflect on it privately, and carry one small action step into real life.";
+
   return (
     <section className="relative overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] shadow-[0_30px_80px_rgba(30,45,56,0.08)]">
       <div className="pointer-events-none absolute right-[-18px] top-[-22px] text-[140px] leading-none text-[var(--accent-gold-soft)]">
@@ -9,23 +29,22 @@ export default function HeroCard() {
 
       <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="px-6 py-8 sm:px-8 sm:py-10">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--heading-accent-soft)]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--section-kicker)]">
             One Ayah Forward
           </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--accent-gold)] sm:text-5xl">
-            A calm daily journey with Al-Huda.
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--heading-accent)] sm:text-5xl">
+            {heroTitle}
           </h1>
           <p className="mt-5 max-w-2xl text-sm leading-8 text-[var(--text-muted)] sm:text-base">
-            Read one meaningful passage, understand it with clarity, reflect on
-            it privately, and carry one small action step into real life.
+            {heroSubtitle}
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
-              href="/onboarding"
+              href={primaryCtaHref}
               className="rounded-full bg-[var(--accent-gold)] px-5 py-3 text-sm font-medium text-[var(--button-primary-text)] transition hover:opacity-90"
             >
-              Discover Al-Huda
+              {primaryCtaLabel}
             </Link>
             <Link
               href="/progress"
@@ -40,11 +59,11 @@ export default function HeroCard() {
           className="flex flex-col justify-center gap-4 border-t px-6 py-8 sm:px-8 lg:border-l lg:border-t-0"
           style={{ borderColor: "var(--border-soft)" }}
         >
-          <div className="rounded-[1.5rem] bg-[var(--surface-soft)] p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-a)]">
+          <div className="rounded-[1.5rem] bg-[var(--surface-soft)] p-5 transition hover:-translate-y-0.5 hover:shadow-[0_12px_35px_rgba(30,45,56,0.07)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--section-kicker)]">
               Daily rhythm
             </p>
-            <p className="mt-2 text-lg font-semibold text-[var(--accent-gold)]">
+            <p className="mt-2 text-lg font-semibold text-[var(--heading-accent)]">
               Small, welcoming, consistent
             </p>
             <p className="mt-2 text-sm leading-7 text-[var(--text-muted)]">
@@ -53,11 +72,11 @@ export default function HeroCard() {
             </p>
           </div>
 
-          <div className="rounded-[1.5rem] bg-[var(--surface-soft)] p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-a)]">
+          <div className="rounded-[1.5rem] bg-[var(--surface-soft)] p-5 transition hover:-translate-y-0.5 hover:shadow-[0_12px_35px_rgba(30,45,56,0.07)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--section-kicker)]">
               Experience
             </p>
-            <p className="mt-2 text-lg font-semibold text-[var(--accent-gold)]">
+            <p className="mt-2 text-lg font-semibold text-[var(--heading-accent)]">
               Read, reflect, act
             </p>
             <p className="mt-2 text-sm leading-7 text-[var(--text-muted)]">
