@@ -9,6 +9,7 @@ The product direction was finalized as a guided daily companion focused on:
 - one action step per day
 - accessibility for non-Arabic speakers
 - beginner-friendly experience
+- a calming, welcoming, and non-overwhelming daily return
 
 ## Naming
 - Internal codename: Project Lantern
@@ -31,6 +32,7 @@ The product direction was finalized as a guided daily companion focused on:
 - frontend and backend env files set up
 - Quran Foundation API access requested and received
 - production content access configured
+- production deployment fixed and verified
 
 ### Backend Work
 - token retrieval fixed
@@ -48,28 +50,47 @@ The product direction was finalized as a guided daily companion focused on:
 - pathway-aware content mapping built
 - progress/history page built
 - about page added
+- profile page added
+- settings page added
+- privacy page added
+- disclaimer page added
 - footer added
 - theme toggle added
 - theme rollout across major pages completed
 - chapter preview cards made clickable
 - pathway cards enhanced with icons
+- helpful resources section added
+- signed-in shell improved
 - visual polish pass completed
 
-### Persistence
+### Authentication and User Identity
+- Supabase Auth integrated
+- Google sign-in implemented
+- email magic link implemented
+- logout flow implemented
+- route protection implemented
+- first name and last name collection added to onboarding
+- user-linked profile creation and persistence implemented
+
+### Persistence and Progress
 - onboarding persistence implemented
 - reflection persistence implemented
 - progress/history connected to saved data
+- per-user journey progression implemented
+- per-user streak tracking implemented
+- returning users skip repeated onboarding
 
 ## UI / Product Notes
-- the `۝` motif is being used as a temporary symbolic visual identity
-- gold and blue accent usage started in HeroCard and may be expanded later
-- heading accent hierarchy may still need one final polish pass in future
+- the `۝` motif is being used as the symbolic visual identity across the app
+- gold and blue accents are now part of the product’s visual language
+- the experience is intentionally designed to feel welcoming, calm, practical, and non-overwhelming
+- Home page section ordering and signed-in flow were refined to better support returning users
 
 ## Deferred to Next Versions
-- authentication
-- user profiles
-- streaks
-- welcome/login landing page
-- first-name personalization
-- social/friends/groups
+- auth-aware guided pathway CTA behavior on Home
+- editable profile details
+- deeper settings controls
+- groups / friends / circles
+- shared reminders or accountability features
+- database-managed pathway authoring
 - native mobile apps
