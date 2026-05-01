@@ -29,10 +29,10 @@ export default function HeroCard({
 
       <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="px-6 py-8 sm:px-8 sm:py-10">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--heading-accent-soft)]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--section-kicker)]">
             One Ayah Forward
           </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--accent-gold)] sm:text-5xl">
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--heading-accent)] sm:text-5xl">
             {heroTitle}
           </h1>
           <p className="mt-5 max-w-2xl text-sm leading-8 text-[var(--text-muted)] sm:text-base">
@@ -60,10 +60,10 @@ export default function HeroCard({
           style={{ borderColor: "var(--border-soft)" }}
         >
           <div className="rounded-[1.5rem] bg-[var(--surface-soft)] p-5 transition hover:-translate-y-0.5 hover:shadow-[0_12px_35px_rgba(30,45,56,0.07)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-a)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--section-kicker)]">
               Daily rhythm
             </p>
-            <p className="mt-2 text-lg font-semibold text-[var(--accent-gold)]">
+            <p className="mt-2 text-lg font-semibold text-[var(--heading-accent)]">
               Small, welcoming, consistent
             </p>
             <p className="mt-2 text-sm leading-7 text-[var(--text-muted)]">
@@ -73,10 +73,10 @@ export default function HeroCard({
           </div>
 
           <div className="rounded-[1.5rem] bg-[var(--surface-soft)] p-5 transition hover:-translate-y-0.5 hover:shadow-[0_12px_35px_rgba(30,45,56,0.07)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-a)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--section-kicker)]">
               Experience
             </p>
-            <p className="mt-2 text-lg font-semibold text-[var(--accent-gold)]">
+            <p className="mt-2 text-lg font-semibold text-[var(--heading-accent)]">
               Read, reflect, act
             </p>
             <p className="mt-2 text-sm leading-7 text-[var(--text-muted)]">

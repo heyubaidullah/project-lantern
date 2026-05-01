@@ -107,7 +107,7 @@ export default function ProfilePage() {
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
                   Current streak
                 </p>
-                <p className="mt-3 text-3xl font-semibold text-[var(--accent-gold)]">
+                <p className="mt-3 text-3xl font-semibold text-[var(--heading-accent)]">
                   {streak?.current_streak ?? 0}
                 </p>
                 <p className="mt-2 text-sm text-[var(--text-muted)]">
@@ -119,7 +119,7 @@ export default function ProfilePage() {
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
                   Longest streak
                 </p>
-                <p className="mt-3 text-3xl font-semibold text-[var(--accent-gold)]">
+                <p className="mt-3 text-3xl font-semibold text-[var(--heading-accent)]">
                   {streak?.longest_streak ?? 0}
                 </p>
                 <p className="mt-2 text-sm text-[var(--text-muted)]">

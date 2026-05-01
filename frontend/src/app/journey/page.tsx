@@ -12,6 +12,7 @@ import {
 import type { OnboardingData, SavedJourneyEntry } from "@/types/app";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
 import { defaultPathwayContent, pathwayStepsMap } from "@/lib/pathway-content";
+import AppFooter from "@/components/AppFooter";
 
 const pathwayMeta: Record<
   string,
@@ -544,9 +545,11 @@ export default function JourneyPage() {
             </div>
           )}
         </div>
+        <AppFooter />
       </main>
     </div>
   );
+
 }
 
 function SnapshotRow({ label, value }: { label: string; value: string }) {

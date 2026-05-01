@@ -14,9 +14,8 @@ import {
   getJourneyEntriesFromDb,
   getOnboardingProfile,
   getProfile,
-  getUserStreak,
 } from "@/lib/db";
-import type { SavedJourneyEntry, UserProfile, UserStreak } from "@/types/app";
+import type { SavedJourneyEntry, UserProfile } from "@/types/app";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
 
 export default function HomePage() {
@@ -29,7 +28,6 @@ export default function HomePage() {
   const [primaryCtaHref, setPrimaryCtaHref] = useState("/login");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [streak, setStreak] = useState<UserStreak | null>(null);
 
   useEffect(() => {
     async function fetchChapters() {
@@ -73,14 +71,12 @@ export default function HomePage() {
 
         setIsAuthenticated(true);
 
-        const [onboarding, profileData, streakData] = await Promise.all([
+        const [onboarding, profileData] = await Promise.all([
           getOnboardingProfile(),
           getProfile(),
-          getUserStreak(),
         ]);
 
         setProfile(profileData);
-        setStreak(streakData);
 
         if (!onboarding) {
           setPrimaryCtaLabel("Begin Setup");
@@ -153,7 +149,6 @@ export default function HomePage() {
             primaryCtaHref={primaryCtaHref}
             isAuthenticated={isAuthenticated}
             firstName={profile?.first_name}
-            // streakCount={streak?.current_streak ?? 0}
           />
 
           <section className="mt-10">
@@ -228,6 +223,35 @@ export default function HomePage() {
                 first entry.
               </div>
             )}
+          </section>
+          
+          <section className="mt-12">
+            <div className="mb-5">
+              <h2 className="text-2xl font-semibold text-[var(--heading-accent)]">
+                Progress Snapshot
+              </h2>
+              <p className="mt-2 text-[var(--text-muted)]">
+                A simple view of consistency, saved notes, and pathway growth.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <ProgressCard
+                label="Saved Entries"
+                value={String(savedCount)}
+                description="Private reflections and action steps saved over time."
+              />
+              <ProgressCard
+                label="Pathways Used"
+                value={String(uniquePathways)}
+                description="Different guided pathways you have moved through."
+              />
+              <ProgressCard
+                label="Latest Focus"
+                value={latestEntry?.chapterName ?? "—"}
+                description="Your most recently saved chapter from the journey."
+              />
+            </div>
           </section>
 
           <section className="mt-10">
@@ -317,34 +341,6 @@ export default function HomePage() {
             <ReflectionCard />
           </section>
 
-          <section className="mt-12">
-            <div className="mb-5">
-              <h2 className="text-2xl font-semibold text-[var(--heading-accent)]">
-                Progress Snapshot
-              </h2>
-              <p className="mt-2 text-[var(--text-muted)]">
-                A simple view of consistency, saved notes, and pathway growth.
-              </p>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-3">
-              <ProgressCard
-                label="Saved Entries"
-                value={String(savedCount)}
-                description="Private reflections and action steps saved over time."
-              />
-              <ProgressCard
-                label="Pathways Used"
-                value={String(uniquePathways)}
-                description="Different guided pathways you have moved through."
-              />
-              <ProgressCard
-                label="Latest Focus"
-                value={latestEntry?.chapterName ?? "—"}
-                description="Your most recently saved chapter from the journey."
-              />
-            </div>
-          </section>
         </div>
       </main>
 

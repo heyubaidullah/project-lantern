@@ -11,18 +11,28 @@ const resources = [
     title: "Qalam Institute",
     description:
       "Grounded learning and practical reminders for everyday spiritual growth.",
-    href: "https://youtu.be/GbJyArdKX2M?si=RYwmggy6RX_x3fZf",
+    href: "https://www.youtube.com/watch?v=GbJyArdKX2M",
     videoId: "GbJyArdKX2M",
     tag: "Learning",
   },
+//   {
+//     title: "Roots Academy",
+//     description:
+//       "Engaging classes and youth-friendly learning that feels accessible and real.",
+//     href: "https://www.youtube.com/watch?v=5U7O4C_1kzM",
+//     videoId: "5U7O4C_1kzM",
+//     tag: "Study",
+//   },
   {
-    title: "Roots Academy",
+    title: "Jannah Institute",
     description:
-      "Engaging classes and youth-friendly learning that feels accessible and real.",
-    href: "https://www.youtube.com/watch?v=5U7O4C_1kzM",
-    videoId: "5U7O4C_1kzM",
+      "A platform for Islamic education and youth-friendly learning that feels accessible and real.",
+    href: "https://www.youtube.com/watch?v=m1Et3DaIMNI",
+    videoId: "m1Et3DaIMNI",
     tag: "Study",
   },
+  
+
 ];
 
 export default function HelpfulResourcesSection() {

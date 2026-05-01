@@ -11,7 +11,7 @@ export function ReflectionCard() {
         Keep it light
       </p>
       <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--heading-accent)]">
-        One sincere return matters more than doing a lot once.
+        One sincere return matters more than doing a lot once. ✨
       </h2>
       <p className="mt-4 max-w-3xl text-sm leading-8 text-[var(--text-muted)]">
         Al-Huda is designed to be gentle, consistent, and practical. The goal
