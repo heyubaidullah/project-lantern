@@ -1,21 +1,40 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import AppFooter from "@/components/AppFooter";
-import { getJourneyEntriesFromDb } from "@/lib/db";
-import type { SavedJourneyEntry } from "@/types/app";
+import {
+  getCurrentUser,
+  getJourneyEntriesFromDb,
+  getProfile,
+} from "@/lib/db";
+import type { SavedJourneyEntry, UserProfile } from "@/types/app";
 
 export default function ProgressPage() {
+  const router = useRouter();
   const [entries, setEntries] = useState<SavedJourneyEntry[]>([]);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     async function loadEntries() {
       try {
-        const data = await getJourneyEntriesFromDb();
+        const user = await getCurrentUser();
+
+        if (!user) {
+          router.replace("/login");
+          return;
+        }
+
+        const [data, profileData] = await Promise.all([
+          getJourneyEntriesFromDb(),
+          getProfile(),
+        ]);
+
         setEntries(data);
+        setProfile(profileData);
       } catch (err) {
         setError(
           err instanceof Error
@@ -28,7 +47,7 @@ export default function ProgressPage() {
     }
 
     loadEntries();
-  }, []);
+  }, [router]);
 
   const totalEntries = entries.length;
   const totalPathways = useMemo(
@@ -36,6 +55,7 @@ export default function ProgressPage() {
     [entries]
   );
   const latestEntry = entries[0];
+  const firstName = profile?.first_name ?? "your";
 
   function formatSavedTime(isoDate: string) {
     const date = new Date(isoDate);
@@ -68,15 +88,15 @@ export default function ProgressPage() {
 
         <div className="relative z-10 mx-auto max-w-6xl px-5 py-8 sm:px-6 lg:px-8">
           <div className="mb-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--heading-accent-soft)]">
               Progress
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--heading-accent)] sm:text-4xl">
-              Your journey so far
+              A look at {firstName === "your" ? "your" : `${firstName}'s`} journey so far
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--text-muted)] sm:text-base">
-              A calm view of your saved reflections, chosen action steps, and
-              the pathways you’ve been moving through.
+              A calm view of saved reflections, chosen action steps, and the
+              pathways you’ve been moving through.
             </p>
           </div>
 
@@ -118,7 +138,8 @@ export default function ProgressPage() {
                     Reflection History
                   </h2>
                   <p className="mt-2 text-[var(--text-muted)]">
-                    Your recent saved entries, displayed in reverse chronological order.
+                    Your recent saved entries, displayed in reverse chronological
+                    order.
                   </p>
                 </div>
 
@@ -132,7 +153,7 @@ export default function ProgressPage() {
                     {entries.map((entry) => (
                       <article
                         key={entry.id}
-                        className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_20px_60px_rgba(30,45,56,0.06)]"
+                        className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_20px_60px_rgba(30,45,56,0.06)] transition hover:shadow-[0_26px_75px_rgba(30,45,56,0.08)]"
                       >
                         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                           <div className="max-w-3xl">
@@ -212,14 +233,16 @@ function StatCard({
   description: string;
 }) {
   return (
-    <div className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_20px_60px_rgba(30,45,56,0.06)]">
+    <div className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_20px_60px_rgba(30,45,56,0.06)] transition hover:-translate-y-1 hover:border-[var(--brand-a)] hover:shadow-[0_24px_70px_rgba(30,45,56,0.08)]">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
         {label}
       </p>
       <p className="mt-3 text-3xl font-semibold tracking-tight text-[var(--heading-accent)]">
         {value}
       </p>
-      <p className="mt-3 text-sm leading-7 text-[var(--text-muted)]">{description}</p>
+      <p className="mt-3 text-sm leading-7 text-[var(--text-muted)]">
+        {description}
+      </p>
     </div>
   );
 }

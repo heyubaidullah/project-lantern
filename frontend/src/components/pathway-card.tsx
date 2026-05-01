@@ -10,7 +10,7 @@ export function PathwayCard({
   icon: string;
 }) {
   return (
-    <article className="relative overflow-hidden rounded-[1.75rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-5 shadow-[0_18px_45px_rgba(30,45,56,0.05)]">
+    <article className="relative overflow-hidden rounded-[1.75rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-5 shadow-[0_18px_45px_rgba(30,45,56,0.05)] transition hover:-translate-y-1 hover:border-[var(--brand-a)] hover:shadow-[0_24px_60px_rgba(30,45,56,0.08)]">
       <div className="pointer-events-none absolute bottom-[-18px] right-[-8px] text-6xl leading-none text-[var(--accent-gold-soft)]">
         ۝
       </div>

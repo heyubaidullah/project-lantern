@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
-import { getOnboardingProfile, saveJourneyEntryToDb } from "@/lib/db";
+import {
+  getCurrentUser,
+  getOnboardingProfile,
+  getUserJourneyProgress,
+  saveJourneyEntryToDb,
+} from "@/lib/db";
 import type { OnboardingData, SavedJourneyEntry } from "@/types/app";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
-import {
-  defaultPathwayContent,
-  pathwayContentMap,
-} from "@/lib/pathway-content";
+import { defaultPathwayContent, pathwayStepsMap } from "@/lib/pathway-content";
+import AppFooter from "@/components/AppFooter";
 
 const pathwayMeta: Record<
   string,
@@ -96,6 +100,8 @@ type TranslationApiResponse = {
 };
 
 export default function JourneyPage() {
+  const router = useRouter();
+
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -110,27 +116,53 @@ export default function JourneyPage() {
   const [verseArabic, setVerseArabic] = useState("");
   const [verseTranslation, setVerseTranslation] = useState("");
   const [verseLoading, setVerseLoading] = useState(false);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
   const pathwayConfig = onboardingData?.pathway
     ? pathwayMeta[onboardingData.pathway]
     : null;
 
-  const contentConfig =
-    onboardingData?.pathway && pathwayContentMap[onboardingData.pathway]
-      ? pathwayContentMap[onboardingData.pathway]
-      : defaultPathwayContent;
+  const pathwaySteps =
+    onboardingData?.pathway && pathwayStepsMap[onboardingData.pathway]
+      ? pathwayStepsMap[onboardingData.pathway]
+      : [defaultPathwayContent];
+
+  const boundedStepIndex = Math.min(
+    currentStepIndex,
+    Math.max(pathwaySteps.length - 1, 0)
+  );
+
+  const contentConfig = pathwaySteps[boundedStepIndex] ?? defaultPathwayContent;
 
   useEffect(() => {
     async function loadJourneyContext() {
       try {
-        const profile = await getOnboardingProfile();
-        if (profile) {
-          setOnboardingData(profile);
+        const user = await getCurrentUser();
 
-          const selectedPathway = pathwayMeta[profile.pathway];
-          if (selectedPathway?.actions?.[0]) {
-            setSelectedAction(selectedPathway.actions[0]);
-          }
+        if (!user) {
+          router.replace("/login");
+          return;
+        }
+
+        const profile = await getOnboardingProfile();
+
+        if (!profile) {
+          router.replace("/onboarding");
+          return;
+        }
+
+        setOnboardingData(profile);
+
+        const progress = await getUserJourneyProgress();
+        if (progress && progress.pathway === profile.pathway) {
+          setCurrentStepIndex(progress.step_index ?? 0);
+        } else {
+          setCurrentStepIndex(0);
+        }
+
+        const selectedPathway = pathwayMeta[profile.pathway];
+        if (selectedPathway?.actions?.[0]) {
+          setSelectedAction(selectedPathway.actions[0]);
         }
       } catch (err) {
         console.error("Failed to load onboarding profile", err);
@@ -158,7 +190,7 @@ export default function JourneyPage() {
 
     loadJourneyContext();
     fetchChapters();
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     async function fetchVerseAndTranslation() {
@@ -233,6 +265,8 @@ export default function JourneyPage() {
   const selectedRhythm =
     onboardingData?.rhythm ? rhythmMeta[onboardingData.rhythm] : "5 minutes";
 
+  const isLastStep = boundedStepIndex >= pathwaySteps.length - 1;
+
   async function saveTodayReflection() {
     if (!chapter) return;
     if (!reflection.trim()) {
@@ -242,6 +276,11 @@ export default function JourneyPage() {
 
     setIsSaving(true);
     setSaveMessage("");
+
+    const nextStepIndex = Math.min(
+      boundedStepIndex + 1,
+      Math.max(pathwaySteps.length - 1, 0)
+    );
 
     const entry: SavedJourneyEntry = {
       id: crypto.randomUUID(),
@@ -258,9 +297,13 @@ export default function JourneyPage() {
     };
 
     try {
-      await saveJourneyEntryToDb(entry);
+      await saveJourneyEntryToDb(entry, nextStepIndex);
       setLastSavedAt(entry.createdAt);
-      setSaveMessage("Today’s reflection was saved successfully.");
+      setSaveMessage(
+        isLastStep
+          ? "Today’s reflection was saved. You’ve completed the current journey."
+          : "Today’s reflection was saved. Your journey will continue from the next step."
+      );
     } catch (err) {
       setSaveMessage(
         err instanceof Error
@@ -296,11 +339,14 @@ export default function JourneyPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
               Today’s Journey
             </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--text-strong)] sm:text-4xl">
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--heading-accent)] sm:text-4xl">
               {pathwayTitle}
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--text-muted)] sm:text-base">
-              {pathwayDescription}
+              {pathwayDescription} Return gently, one meaningful step at a time.
+            </p>
+            <p className="mt-4 inline-flex rounded-full bg-[var(--surface-soft)] px-4 py-2 text-sm font-medium text-[var(--text-strong)]">
+              Step {boundedStepIndex + 1} of {pathwaySteps.length}
             </p>
           </div>
 
@@ -381,7 +427,7 @@ export default function JourneyPage() {
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
                     Reflect
                   </p>
-                  <h3 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--text-strong)]">
+                  <h3 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--heading-accent)]">
                     {reflectionPrompt}
                   </h3>
                   <textarea
@@ -409,7 +455,7 @@ export default function JourneyPage() {
                   {saveMessage && (
                     <div
                       className={`mt-4 rounded-2xl px-4 py-3 text-sm ${
-                        saveMessage.includes("successfully")
+                        saveMessage.includes("saved")
                           ? "bg-emerald-50 text-emerald-700"
                           : "bg-amber-50 text-amber-700"
                       }`}
@@ -425,7 +471,7 @@ export default function JourneyPage() {
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
                     Act
                   </p>
-                  <h3 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--text-strong)]">
+                  <h3 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--heading-accent)]">
                     Choose one small step
                   </h3>
                   <p className="mt-3 text-sm leading-7 text-[var(--text-muted)]">
@@ -499,9 +545,11 @@ export default function JourneyPage() {
             </div>
           )}
         </div>
+        <AppFooter />
       </main>
     </div>
   );
+
 }
 
 function SnapshotRow({ label, value }: { label: string; value: string }) {

@@ -1,82 +1,340 @@
-import { supabase } from "@/lib/supabase";
-import type { OnboardingData, SavedJourneyEntry } from "@/types/app";
+import { createClient } from "@/lib/supabase/client";
+import type {
+  OnboardingData,
+  SavedJourneyEntry,
+  UserJourneyProgress,
+  UserProfile,
+  UserStreak,
+} from "@/types/app";
 
-const PROFILE_KEY_STORAGE_KEY = "lantern_profile_key";
-
-export function getOrCreateProfileKey(): string {
-  if (typeof window === "undefined") {
-    return "";
-  }
-
-  const existingKey = localStorage.getItem(PROFILE_KEY_STORAGE_KEY);
-  if (existingKey) {
-    return existingKey;
-  }
-
-  const newKey = crypto.randomUUID();
-  localStorage.setItem(PROFILE_KEY_STORAGE_KEY, newKey);
-  return newKey;
+function getTodayDateString() {
+  return new Date().toISOString().split("T")[0];
 }
 
-export async function saveOnboardingProfile(
-  data: OnboardingData
-): Promise<void> {
-  const profileKey = getOrCreateProfileKey();
+function getYesterdayDateString() {
+  const date = new Date();
+  date.setDate(date.getDate() - 1);
+  return date.toISOString().split("T")[0];
+}
 
-  const { error } = await supabase.from("onboarding_profiles").upsert(
+export async function getCurrentUser() {
+  const supabase = createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error) throw error;
+  return user;
+}
+
+export async function ensureProfile() {
+  const supabase = createClient();
+  const user = await getCurrentUser();
+
+  if (!user) return null;
+
+  const existing = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (existing.data) {
+    return existing.data as UserProfile;
+  }
+
+  const fullName = user.user_metadata?.full_name as string | undefined;
+  const firstName =
+    (user.user_metadata?.given_name as string | undefined) ??
+    fullName?.split(" ")[0] ??
+    null;
+  const lastName =
+    (user.user_metadata?.family_name as string | undefined) ??
+    (fullName ? fullName.split(" ").slice(1).join(" ") || null : null);
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .insert({
+      id: user.id,
+      first_name: firstName,
+      last_name: lastName,
+      email: user.email ?? null,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as UserProfile;
+}
+
+export async function getProfile() {
+  const supabase = createClient();
+  const user = await getCurrentUser();
+
+  if (!user) return null;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data as UserProfile | null;
+}
+
+export async function saveOnboardingProfile(data: OnboardingData) {
+  const supabase = createClient();
+  const user = await getCurrentUser();
+
+  if (!user) {
+    throw new Error("You must be signed in to save onboarding.");
+  }
+
+  await ensureProfile();
+
+  const { error: profileError } = await supabase.from("profiles").upsert(
     {
-      profile_key: profileKey,
+      id: user.id,
+      first_name: data.firstName.trim() || null,
+      last_name: data.lastName.trim() || null,
+      email: user.email ?? null,
+    },
+    { onConflict: "id" }
+  );
+
+  if (profileError) {
+    throw profileError;
+  }
+
+  const { error } = await supabase.from("user_onboarding").upsert(
+    {
+      user_id: user.id,
       intent: data.intent,
       language: data.language,
       rhythm: data.rhythm,
       pathway: data.pathway,
-      completed_at: data.completedAt ?? null,
+      completed_at: data.completedAt,
       updated_at: new Date().toISOString(),
     },
-    {
-      onConflict: "profile_key",
-    }
+    { onConflict: "user_id" }
   );
 
   if (error) {
     throw error;
   }
+
+  const { data: existingProgress } = await supabase
+    .from("user_journey_progress")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!existingProgress) {
+    const { error: progressError } = await supabase
+      .from("user_journey_progress")
+      .insert({
+        user_id: user.id,
+        pathway: data.pathway,
+        step_index: 0,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (progressError) {
+      throw progressError;
+    }
+  }
 }
 
 export async function getOnboardingProfile(): Promise<OnboardingData | null> {
-  const profileKey = getOrCreateProfileKey();
+  const supabase = createClient();
+  const user = await getCurrentUser();
 
-  const { data, error } = await supabase
-    .from("onboarding_profiles")
-    .select("intent, language, rhythm, pathway, completed_at")
-    .eq("profile_key", profileKey)
-    .maybeSingle();
+  if (!user) return null;
 
-  if (error) {
-    throw error;
-  }
+  const [{ data: onboarding, error: onboardingError }, { data: profile, error: profileError }] =
+    await Promise.all([
+      supabase
+        .from("user_onboarding")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle(),
+    ]);
 
-  if (!data) {
-    return null;
-  }
+  if (onboardingError) throw onboardingError;
+  if (profileError) throw profileError;
+  if (!onboarding) return null;
 
   return {
-    intent: data.intent,
-    language: data.language,
-    rhythm: data.rhythm,
-    pathway: data.pathway,
-    completedAt: data.completed_at ?? undefined,
+    firstName: profile?.first_name ?? "",
+    lastName: profile?.last_name ?? "",
+    intent: onboarding.intent ?? "",
+    language: onboarding.language ?? "",
+    rhythm: onboarding.rhythm ?? "",
+    pathway: onboarding.pathway ?? "",
+    completedAt: onboarding.completed_at ?? "",
   };
 }
 
+export async function getJourneyEntriesFromDb(): Promise<SavedJourneyEntry[]> {
+  const supabase = createClient();
+  const user = await getCurrentUser();
+
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("journey_entries")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  return (data ?? []).map((entry) => ({
+    id: entry.id,
+    createdAt: entry.created_at,
+    pathway: entry.pathway,
+    pathwayTitle: entry.pathway_title,
+    language: entry.language,
+    rhythm: entry.rhythm,
+    chapterId: entry.chapter_id,
+    chapterName: entry.chapter_name,
+    chapterArabicName: entry.chapter_arabic_name,
+    reflection: entry.reflection,
+    actionStep: entry.action_step,
+  }));
+}
+
+export async function getUserStreak(): Promise<UserStreak | null> {
+  const supabase = createClient();
+  const user = await getCurrentUser();
+
+  if (!user) return null;
+
+  const { data, error } = await supabase
+    .from("user_streaks")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data as UserStreak | null;
+}
+
+export async function getUserJourneyProgress(): Promise<UserJourneyProgress | null> {
+  const supabase = createClient();
+  const user = await getCurrentUser();
+
+  if (!user) return null;
+
+  const { data, error } = await supabase
+    .from("user_journey_progress")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data as UserJourneyProgress | null;
+}
+
+export async function advanceUserJourneyProgress(
+  pathway: string,
+  nextStepIndex: number
+) {
+  const supabase = createClient();
+  const user = await getCurrentUser();
+
+  if (!user) return;
+
+  const { error } = await supabase.from("user_journey_progress").upsert(
+    {
+      user_id: user.id,
+      pathway,
+      step_index: nextStepIndex,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" }
+  );
+
+  if (error) throw error;
+}
+
+async function updateUserStreakForToday() {
+  const supabase = createClient();
+  const user = await getCurrentUser();
+
+  if (!user) return;
+
+  const today = getTodayDateString();
+  const yesterday = getYesterdayDateString();
+
+  const { data: streakRow, error: streakError } = await supabase
+    .from("user_streaks")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (streakError) throw streakError;
+
+  if (!streakRow) {
+    const { error } = await supabase.from("user_streaks").insert({
+      user_id: user.id,
+      current_streak: 1,
+      longest_streak: 1,
+      last_completed_date: today,
+      updated_at: new Date().toISOString(),
+    });
+
+    if (error) throw error;
+    return;
+  }
+
+  if (streakRow.last_completed_date === today) {
+    return;
+  }
+
+  const nextCurrent =
+    streakRow.last_completed_date === yesterday
+      ? streakRow.current_streak + 1
+      : 1;
+
+  const nextLongest = Math.max(nextCurrent, streakRow.longest_streak ?? 0);
+
+  const { error } = await supabase
+    .from("user_streaks")
+    .update({
+      current_streak: nextCurrent,
+      longest_streak: nextLongest,
+      last_completed_date: today,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("user_id", user.id);
+
+  if (error) throw error;
+}
+
 export async function saveJourneyEntryToDb(
-  entry: SavedJourneyEntry
-): Promise<void> {
-  const profileKey = getOrCreateProfileKey();
+  entry: SavedJourneyEntry,
+  nextStepIndex?: number
+) {
+  const supabase = createClient();
+  const user = await getCurrentUser();
+
+  if (!user) {
+    throw new Error("You must be signed in to save a reflection.");
+  }
+
+  const entryDate = getTodayDateString();
 
   const { error } = await supabase.from("journey_entries").insert({
-    profile_key: profileKey,
-    created_at: entry.createdAt,
+    id: entry.id,
+    user_id: user.id,
     pathway: entry.pathway,
     pathway_title: entry.pathwayTitle,
     language: entry.language,
@@ -86,51 +344,15 @@ export async function saveJourneyEntryToDb(
     chapter_arabic_name: entry.chapterArabicName,
     reflection: entry.reflection,
     action_step: entry.actionStep,
+    entry_date: entryDate,
+    created_at: entry.createdAt,
   });
 
-  if (error) {
-    throw error;
+  if (error) throw error;
+
+  await updateUserStreakForToday();
+
+  if (typeof nextStepIndex === "number") {
+    await advanceUserJourneyProgress(entry.pathway, nextStepIndex);
   }
-}
-
-export async function getJourneyEntriesFromDb(): Promise<SavedJourneyEntry[]> {
-  const profileKey = getOrCreateProfileKey();
-
-  const { data, error } = await supabase
-    .from("journey_entries")
-    .select(
-      `
-      id,
-      created_at,
-      pathway,
-      pathway_title,
-      language,
-      rhythm,
-      chapter_id,
-      chapter_name,
-      chapter_arabic_name,
-      reflection,
-      action_step
-    `
-    )
-    .eq("profile_key", profileKey)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    throw error;
-  }
-
-  return (data ?? []).map((item) => ({
-    id: item.id,
-    createdAt: item.created_at,
-    pathway: item.pathway,
-    pathwayTitle: item.pathway_title,
-    language: item.language,
-    rhythm: item.rhythm,
-    chapterId: item.chapter_id,
-    chapterName: item.chapter_name,
-    chapterArabicName: item.chapter_arabic_name,
-    reflection: item.reflection,
-    actionStep: item.action_step,
-  }));
 }
