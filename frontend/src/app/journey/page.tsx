@@ -342,7 +342,7 @@ export default function JourneyPage() {
               {pathwayTitle}
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--text-muted)] sm:text-base">
-              {pathwayDescription}
+              {pathwayDescription} Return gently, one meaningful step at a time.
             </p>
             <p className="mt-4 inline-flex rounded-full bg-[var(--surface-soft)] px-4 py-2 text-sm font-medium text-[var(--text-strong)]">
               Step {boundedStepIndex + 1} of {pathwaySteps.length}

@@ -153,7 +153,7 @@ export default function HomePage() {
             primaryCtaHref={primaryCtaHref}
             isAuthenticated={isAuthenticated}
             firstName={profile?.first_name}
-            streakCount={streak?.current_streak ?? 0}
+            // streakCount={streak?.current_streak ?? 0}
           />
 
           <section className="mt-10">

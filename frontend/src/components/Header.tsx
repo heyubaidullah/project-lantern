@@ -127,7 +127,8 @@ export default function Header() {
                   Streak
                 </p>
                 <p className="text-sm font-semibold text-[var(--accent-gold)]">
-                  {streak?.current_streak ?? 0} day{(streak?.current_streak ?? 0) === 1 ? "" : "s"}
+                  {streak?.current_streak ?? 0} day
+                  {(streak?.current_streak ?? 0) === 1 ? "" : "s"}
                 </p>
               </div>
             </div>
@@ -151,7 +152,7 @@ export default function Header() {
               </button>
 
               {menuOpen && (
-                <div className="absolute right-0 top-12 z-50 min-w-[190px] overflow-hidden rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-raised)] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.12)]">
+                <div className="absolute right-0 top-12 z-50 min-w-[200px] overflow-hidden rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-raised)] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.12)]">
                   <div className="rounded-xl bg-[var(--surface-soft)] px-3 py-3">
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--heading-accent-soft)]">
                       Signed in as
@@ -162,7 +163,7 @@ export default function Header() {
                   </div>
 
                   <Link
-                    href="/progress"
+                    href="/profile"
                     className="mt-2 block rounded-xl px-3 py-2.5 text-sm text-[var(--text-strong)] transition hover:bg-[var(--surface-soft)]"
                     onClick={() => setMenuOpen(false)}
                   >
@@ -170,7 +171,7 @@ export default function Header() {
                   </Link>
 
                   <Link
-                    href="/about"
+                    href="/settings"
                     className="block rounded-xl px-3 py-2.5 text-sm text-[var(--text-strong)] transition hover:bg-[var(--surface-soft)]"
                     onClick={() => setMenuOpen(false)}
                   >

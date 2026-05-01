@@ -1,4 +1,6 @@
 export type OnboardingData = {
+  firstName: string;
+  lastName: string;
   intent: string;
   language: string;
   rhythm: string;

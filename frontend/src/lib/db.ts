@@ -24,10 +24,7 @@ export async function getCurrentUser() {
     error,
   } = await supabase.auth.getUser();
 
-  if (error) {
-    throw error;
-  }
-
+  if (error) throw error;
   return user;
 }
 
@@ -67,10 +64,7 @@ export async function ensureProfile() {
     .select()
     .single();
 
-  if (error) {
-    throw error;
-  }
-
+  if (error) throw error;
   return data as UserProfile;
 }
 
@@ -86,10 +80,7 @@ export async function getProfile() {
     .eq("id", user.id)
     .maybeSingle();
 
-  if (error) {
-    throw error;
-  }
-
+  if (error) throw error;
   return data as UserProfile | null;
 }
 
@@ -102,6 +93,20 @@ export async function saveOnboardingProfile(data: OnboardingData) {
   }
 
   await ensureProfile();
+
+  const { error: profileError } = await supabase.from("profiles").upsert(
+    {
+      id: user.id,
+      first_name: data.firstName.trim() || null,
+      last_name: data.lastName.trim() || null,
+      email: user.email ?? null,
+    },
+    { onConflict: "id" }
+  );
+
+  if (profileError) {
+    throw profileError;
+  }
 
   const { error } = await supabase.from("user_onboarding").upsert(
     {
@@ -148,24 +153,32 @@ export async function getOnboardingProfile(): Promise<OnboardingData | null> {
 
   if (!user) return null;
 
-  const { data, error } = await supabase
-    .from("user_onboarding")
-    .select("*")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const [{ data: onboarding, error: onboardingError }, { data: profile, error: profileError }] =
+    await Promise.all([
+      supabase
+        .from("user_onboarding")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle(),
+    ]);
 
-  if (error) {
-    throw error;
-  }
-
-  if (!data) return null;
+  if (onboardingError) throw onboardingError;
+  if (profileError) throw profileError;
+  if (!onboarding) return null;
 
   return {
-    intent: data.intent ?? "",
-    language: data.language ?? "",
-    rhythm: data.rhythm ?? "",
-    pathway: data.pathway ?? "",
-    completedAt: data.completed_at ?? "",
+    firstName: profile?.first_name ?? "",
+    lastName: profile?.last_name ?? "",
+    intent: onboarding.intent ?? "",
+    language: onboarding.language ?? "",
+    rhythm: onboarding.rhythm ?? "",
+    pathway: onboarding.pathway ?? "",
+    completedAt: onboarding.completed_at ?? "",
   };
 }
 
@@ -181,9 +194,7 @@ export async function getJourneyEntriesFromDb(): Promise<SavedJourneyEntry[]> {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
   return (data ?? []).map((entry) => ({
     id: entry.id,
@@ -212,10 +223,7 @@ export async function getUserStreak(): Promise<UserStreak | null> {
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (error) {
-    throw error;
-  }
-
+  if (error) throw error;
   return data as UserStreak | null;
 }
 
@@ -231,10 +239,7 @@ export async function getUserJourneyProgress(): Promise<UserJourneyProgress | nu
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (error) {
-    throw error;
-  }
-
+  if (error) throw error;
   return data as UserJourneyProgress | null;
 }
 
@@ -257,9 +262,7 @@ export async function advanceUserJourneyProgress(
     { onConflict: "user_id" }
   );
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 }
 
 async function updateUserStreakForToday() {
@@ -277,9 +280,7 @@ async function updateUserStreakForToday() {
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (streakError) {
-    throw streakError;
-  }
+  if (streakError) throw streakError;
 
   if (!streakRow) {
     const { error } = await supabase.from("user_streaks").insert({
@@ -315,9 +316,7 @@ async function updateUserStreakForToday() {
     })
     .eq("user_id", user.id);
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 }
 
 export async function saveJourneyEntryToDb(
@@ -349,9 +348,7 @@ export async function saveJourneyEntryToDb(
     created_at: entry.createdAt,
   });
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
   await updateUserStreakForToday();
 
