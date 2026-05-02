@@ -15,6 +15,7 @@ import {
   getOnboardingProfile,
   getProfile,
 } from "@/lib/db";
+import { fetchJson } from "@/lib/fetch-json";
 import type { SavedJourneyEntry, UserProfile } from "@/types/app";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
 
@@ -32,18 +33,22 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchChapters() {
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/qf/chapters`
+        const data = await fetchJson<ChaptersResponse>(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/qf/chapters`,
+          {
+            timeoutMs: 12000,
+            retries: 1,
+            retryDelayMs: 900,
+          }
         );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch chapters");
-        }
-
-        const data: ChaptersResponse = await response.json();
-        setChapters(data.chapters);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Something went wrong");
+        setChapters(data.chapters ?? []);
+        setError("");
+      } catch {
+        setError(
+          "We couldn’t load the chapter preview right now. Please try again shortly."
+        );
+        setChapters([]);
       } finally {
         setLoading(false);
       }
@@ -224,7 +229,7 @@ export default function HomePage() {
               </div>
             )}
           </section>
-          
+
           <section className="mt-12">
             <div className="mb-5">
               <h2 className="text-2xl font-semibold text-[var(--heading-accent)]">
@@ -266,13 +271,17 @@ export default function HomePage() {
               </div>
             </div>
 
-            {loading && <p className="text-[var(--text-muted)]">Loading chapters...</p>}
-
-            {error && (
-              <p className="rounded-xl bg-red-50 p-4 text-red-700">{error}</p>
+            {loading && (
+              <p className="text-[var(--text-muted)]">Loading chapters...</p>
             )}
 
-            {!loading && !error && (
+            {error && (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                {error}
+              </div>
+            )}
+
+            {!loading && !error && visibleChapters.length > 0 && (
               <>
                 <div className="grid gap-4 md:grid-cols-2">
                   {visibleChapters.map((chapter) => (
@@ -340,7 +349,6 @@ export default function HomePage() {
           <section className="mt-12">
             <ReflectionCard />
           </section>
-
         </div>
       </main>
 

@@ -3,16 +3,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
+import AppFooter from "@/components/AppFooter";
 import {
   getCurrentUser,
   getOnboardingProfile,
   getUserJourneyProgress,
   saveJourneyEntryToDb,
 } from "@/lib/db";
+import { fetchJson } from "@/lib/fetch-json";
 import type { OnboardingData, SavedJourneyEntry } from "@/types/app";
 import type { Chapter, ChaptersResponse } from "@/types/quran";
 import { defaultPathwayContent, pathwayStepsMap } from "@/lib/pathway-content";
-import AppFooter from "@/components/AppFooter";
 
 const pathwayMeta: Record<
   string,
@@ -164,25 +165,29 @@ export default function JourneyPage() {
         if (selectedPathway?.actions?.[0]) {
           setSelectedAction(selectedPathway.actions[0]);
         }
-      } catch (err) {
-        console.error("Failed to load onboarding profile", err);
+      } catch {
+        setError(
+          "We couldn’t restore your journey right now. Please refresh and try again."
+        );
       }
     }
 
     async function fetchChapters() {
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/qf/chapters`
+        const data = await fetchJson<ChaptersResponse>(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/qf/chapters`,
+          {
+            timeoutMs: 12000,
+            retries: 1,
+            retryDelayMs: 900,
+          }
         );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch today’s journey");
-        }
-
-        const data: ChaptersResponse = await response.json();
-        setChapters(data.chapters);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Something went wrong");
+        setChapters(data.chapters ?? []);
+      } catch {
+        setError(
+          "We couldn’t load today’s journey content right now. Please try again shortly."
+        );
       } finally {
         setLoading(false);
       }
@@ -199,34 +204,31 @@ export default function JourneyPage() {
       setVerseLoading(true);
 
       try {
-        const [verseResponse, translationResponse] = await Promise.all([
-          fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/qf/verse/${contentConfig.verseKey}`
+        const [verseData, translationData] = await Promise.all([
+          fetchJson<VerseApiResponse>(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/qf/verse/${contentConfig.verseKey}`,
+            {
+              timeoutMs: 12000,
+              retries: 1,
+              retryDelayMs: 900,
+            }
           ),
-          fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/qf/translation/85/${contentConfig.verseKey}`
+          fetchJson<TranslationApiResponse>(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/qf/translation/85/${contentConfig.verseKey}`,
+            {
+              timeoutMs: 12000,
+              retries: 1,
+              retryDelayMs: 900,
+            }
           ),
         ]);
-
-        if (!verseResponse.ok) {
-          throw new Error("Failed to fetch verse content");
-        }
-
-        if (!translationResponse.ok) {
-          throw new Error("Failed to fetch verse translation");
-        }
-
-        const verseData: VerseApiResponse = await verseResponse.json();
-        const translationData: TranslationApiResponse =
-          await translationResponse.json();
 
         const verse = verseData.verse;
         const translation = translationData.translations?.[0];
 
         setVerseArabic(verse?.text_uthmani ?? "");
         setVerseTranslation(translation?.text ?? "");
-      } catch (err) {
-        console.error("Failed to fetch verse or translation", err);
+      } catch {
         setVerseArabic("");
         setVerseTranslation("");
       } finally {
@@ -304,11 +306,9 @@ export default function JourneyPage() {
           ? "Today’s reflection was saved. You’ve completed the current journey."
           : "Today’s reflection was saved. Your journey will continue from the next step."
       );
-    } catch (err) {
+    } catch {
       setSaveMessage(
-        err instanceof Error
-          ? err.message
-          : "Failed to save today’s reflection."
+        "We couldn’t save your reflection right now. Please try again."
       );
     } finally {
       setIsSaving(false);
@@ -343,7 +343,7 @@ export default function JourneyPage() {
               {pathwayTitle}
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--text-muted)] sm:text-base">
-              {pathwayDescription} Return gently, one meaningful step at a time.
+              {pathwayDescription}
             </p>
             <p className="mt-4 inline-flex rounded-full bg-[var(--surface-soft)] px-4 py-2 text-sm font-medium text-[var(--text-strong)]">
               Step {boundedStepIndex + 1} of {pathwaySteps.length}
@@ -357,7 +357,7 @@ export default function JourneyPage() {
           )}
 
           {error && (
-            <div className="rounded-[2rem] border border-red-200 bg-red-50 p-6 text-red-700 shadow-sm">
+            <div className="rounded-[2rem] border border-amber-200 bg-amber-50 p-6 text-amber-800 shadow-sm">
               {error}
             </div>
           )}
@@ -406,7 +406,9 @@ export default function JourneyPage() {
                             {verseArabic || "Verse unavailable"}
                           </p>
                           <p className="mt-4 text-base leading-8 text-[var(--text-muted)]">
-                            “{verseTranslation || "Translation unavailable"}”
+                            {verseTranslation
+                              ? `“${verseTranslation}”`
+                              : "Translation unavailable right now."}
                           </p>
                         </>
                       )}
@@ -455,7 +457,7 @@ export default function JourneyPage() {
                   {saveMessage && (
                     <div
                       className={`mt-4 rounded-2xl px-4 py-3 text-sm ${
-                        saveMessage.includes("saved")
+                        saveMessage.toLowerCase().includes("saved")
                           ? "bg-emerald-50 text-emerald-700"
                           : "bg-amber-50 text-amber-700"
                       }`}
@@ -545,11 +547,11 @@ export default function JourneyPage() {
             </div>
           )}
         </div>
-        <AppFooter />
       </main>
+
+      <AppFooter />
     </div>
   );
-
 }
 
 function SnapshotRow({ label, value }: { label: string; value: string }) {
