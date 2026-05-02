@@ -1,16 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getCurrentUser } from "@/lib/db";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [loadingEmail, setLoadingEmail] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
 
   const supabase = createClient();
+
+  useEffect(() => {
+    async function checkExistingSession() {
+      try {
+        const user = await getCurrentUser();
+
+        if (user) {
+          router.replace("/");
+          return;
+        }
+      } catch {
+        // ignore and let page render
+      } finally {
+        setCheckingSession(false);
+      }
+    }
+
+    checkExistingSession();
+  }, [router]);
 
   async function handleGoogleLogin() {
     setLoadingGoogle(true);
@@ -26,7 +49,7 @@ export default function LoginPage() {
     });
 
     if (error) {
-      setMessage(error.message);
+      setMessage("We couldn’t start Google sign-in right now. Please try again.");
       setLoadingGoogle(false);
     }
   }
@@ -46,12 +69,24 @@ export default function LoginPage() {
     });
 
     if (error) {
-      setMessage(error.message);
+      setMessage("We couldn’t send the magic link right now. Please try again.");
     } else {
       setMessage("Magic link sent. Check your email.");
     }
 
     setLoadingEmail(false);
+  }
+
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen bg-[var(--bg-page)]">
+        <main className="mx-auto flex min-h-screen max-w-5xl items-center justify-center px-5 py-10 sm:px-6 lg:px-8">
+          <div className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] px-6 py-5 text-sm text-[var(--text-muted)] shadow-[0_20px_60px_rgba(30,45,56,0.06)]">
+            Checking your session...
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return (

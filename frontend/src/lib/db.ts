@@ -17,15 +17,57 @@ function getYesterdayDateString() {
   return date.toISOString().split("T")[0];
 }
 
+function isAuthSessionMissingError(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as { message: unknown }).message === "string" &&
+    (error as { message: string }).message
+      .toLowerCase()
+      .includes("auth session missing")
+  );
+}
+
 export async function getCurrentUser() {
   const supabase = createClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
 
-  if (error) throw error;
-  return user;
+  try {
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
+
+    if (sessionError) {
+      if (isAuthSessionMissingError(sessionError)) {
+        return null;
+      }
+      throw sessionError;
+    }
+
+    if (!session?.user) {
+      return null;
+    }
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError) {
+      if (isAuthSessionMissingError(userError)) {
+        return null;
+      }
+      throw userError;
+    }
+
+    return user ?? null;
+  } catch (error) {
+    if (isAuthSessionMissingError(error)) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function ensureProfile() {
@@ -39,6 +81,10 @@ export async function ensureProfile() {
     .select("*")
     .eq("id", user.id)
     .maybeSingle();
+
+  if (existing.error) {
+    throw existing.error;
+  }
 
   if (existing.data) {
     return existing.data as UserProfile;
@@ -125,11 +171,15 @@ export async function saveOnboardingProfile(data: OnboardingData) {
     throw error;
   }
 
-  const { data: existingProgress } = await supabase
+  const { data: existingProgress, error: progressReadError } = await supabase
     .from("user_journey_progress")
     .select("*")
     .eq("user_id", user.id)
     .maybeSingle();
+
+  if (progressReadError) {
+    throw progressReadError;
+  }
 
   if (!existingProgress) {
     const { error: progressError } = await supabase
@@ -153,19 +203,17 @@ export async function getOnboardingProfile(): Promise<OnboardingData | null> {
 
   if (!user) return null;
 
-  const [{ data: onboarding, error: onboardingError }, { data: profile, error: profileError }] =
-    await Promise.all([
-      supabase
-        .from("user_onboarding")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle(),
-      supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .maybeSingle(),
-    ]);
+  const [
+    { data: onboarding, error: onboardingError },
+    { data: profile, error: profileError },
+  ] = await Promise.all([
+    supabase
+      .from("user_onboarding")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
+  ]);
 
   if (onboardingError) throw onboardingError;
   if (profileError) throw profileError;
