@@ -20,6 +20,23 @@ export type SavedJourneyEntry = {
   chapterArabicName: string;
   reflection: string;
   actionStep: string;
+  source?: "journey" | "feeling" | "journal";
+  lifeStateKey?: string | null;
+  lifeStateLabel?: string | null;
+  verseKey?: string | null;
+  verseText?: string | null;
+  verseTranslation?: string | null;
+  journalPrompt?: string | null;
+  journalNote?: string | null;
+};
+
+export type JournalEntry = {
+  id: string;
+  createdAt: string;
+  title: string;
+  note: string;
+  mood?: string | null;
+  prompt?: string | null;
 };
 
 export type UserProfile = {
