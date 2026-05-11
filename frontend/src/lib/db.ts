@@ -1,11 +1,34 @@
 import { createClient } from "@/lib/supabase/client";
 import type {
+  JournalEntry,
   OnboardingData,
   SavedJourneyEntry,
   UserJourneyProgress,
   UserProfile,
   UserStreak,
 } from "@/types/app";
+
+type DbRecord = Record<string, string | number | null | undefined>;
+
+function readString(value: DbRecord[string], fallback = "") {
+  if (typeof value === "string") return value;
+  if (typeof value === "number") return String(value);
+  return fallback;
+}
+
+function readNumber(value: DbRecord[string], fallback = 0) {
+  if (typeof value === "number") return value;
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? fallback : parsed;
+  }
+  return fallback;
+}
+
+function readNullableString(value: DbRecord[string]) {
+  const stringValue = readString(value);
+  return stringValue || null;
+}
 
 function getTodayDateString() {
   return new Date().toISOString().split("T")[0];
@@ -15,6 +38,21 @@ function getYesterdayDateString() {
   const date = new Date();
   date.setDate(date.getDate() - 1);
   return date.toISOString().split("T")[0];
+}
+
+function isMissingColumnError(error: unknown) {
+  if (typeof error !== "object" || error === null) return false;
+
+  const maybeError = error as { code?: unknown; message?: unknown };
+  const message =
+    typeof maybeError.message === "string" ? maybeError.message.toLowerCase() : "";
+
+  return (
+    maybeError.code === "42703" ||
+    maybeError.code === "PGRST204" ||
+    message.includes("column") ||
+    message.includes("schema cache")
+  );
 }
 
 function isAuthSessionMissingError(error: unknown) {
@@ -244,18 +282,26 @@ export async function getJourneyEntriesFromDb(): Promise<SavedJourneyEntry[]> {
 
   if (error) throw error;
 
-  return (data ?? []).map((entry) => ({
-    id: entry.id,
-    createdAt: entry.created_at,
-    pathway: entry.pathway,
-    pathwayTitle: entry.pathway_title,
-    language: entry.language,
-    rhythm: entry.rhythm,
-    chapterId: entry.chapter_id,
-    chapterName: entry.chapter_name,
-    chapterArabicName: entry.chapter_arabic_name,
-    reflection: entry.reflection,
-    actionStep: entry.action_step,
+  return ((data ?? []) as DbRecord[]).map((entry) => ({
+    id: readString(entry.id),
+    createdAt: readString(entry.created_at),
+    pathway: readString(entry.pathway),
+    pathwayTitle: readString(entry.pathway_title),
+    language: readString(entry.language),
+    rhythm: readString(entry.rhythm),
+    chapterId: readNumber(entry.chapter_id),
+    chapterName: readString(entry.chapter_name),
+    chapterArabicName: readString(entry.chapter_arabic_name),
+    reflection: readString(entry.reflection),
+    actionStep: readString(entry.action_step),
+    source: readString(entry.source, "journey") as SavedJourneyEntry["source"],
+    lifeStateKey: readNullableString(entry.life_state_key),
+    lifeStateLabel: readNullableString(entry.life_state_label),
+    verseKey: readNullableString(entry.verse_key),
+    verseText: readNullableString(entry.verse_text),
+    verseTranslation: readNullableString(entry.verse_translation),
+    journalPrompt: readNullableString(entry.journal_prompt),
+    journalNote: readNullableString(entry.journal_note),
   }));
 }
 
@@ -380,27 +426,99 @@ export async function saveJourneyEntryToDb(
 
   const entryDate = getTodayDateString();
 
-  const { error } = await supabase.from("journey_entries").insert({
-    id: entry.id,
+  const basePayload = {
+    id: readString(entry.id),
     user_id: user.id,
-    pathway: entry.pathway,
+    pathway: readString(entry.pathway),
     pathway_title: entry.pathwayTitle,
-    language: entry.language,
-    rhythm: entry.rhythm,
+    language: readString(entry.language),
+    rhythm: readString(entry.rhythm),
     chapter_id: entry.chapterId,
     chapter_name: entry.chapterName,
     chapter_arabic_name: entry.chapterArabicName,
-    reflection: entry.reflection,
+    reflection: readString(entry.reflection),
     action_step: entry.actionStep,
     entry_date: entryDate,
     created_at: entry.createdAt,
-  });
+  };
 
-  if (error) throw error;
+  const v2Payload = {
+    ...basePayload,
+    source: readString(entry.source, "journey") as SavedJourneyEntry["source"],
+    life_state_key: entry.lifeStateKey ?? null,
+    life_state_label: entry.lifeStateLabel ?? null,
+    verse_key: entry.verseKey ?? null,
+    verse_text: entry.verseText ?? null,
+    verse_translation: entry.verseTranslation ?? null,
+    journal_prompt: entry.journalPrompt ?? null,
+    journal_note: entry.journalNote ?? null,
+  };
+
+  const { error } = await supabase.from("journey_entries").insert(v2Payload);
+
+  if (error) {
+    if (!isMissingColumnError(error)) {
+      throw error;
+    }
+
+    const { error: fallbackError } = await supabase
+      .from("journey_entries")
+      .insert(basePayload);
+
+    if (fallbackError) throw fallbackError;
+  }
 
   await updateUserStreakForToday();
 
   if (typeof nextStepIndex === "number") {
     await advanceUserJourneyProgress(entry.pathway, nextStepIndex);
   }
+}
+
+export async function getJournalEntriesFromDb(): Promise<JournalEntry[]> {
+  const supabase = createClient();
+  const user = await getCurrentUser();
+
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("ah_journal_entries")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    if (isMissingColumnError(error)) return [];
+    throw error;
+  }
+
+  return ((data ?? []) as DbRecord[]).map((entry) => ({
+    id: readString(entry.id),
+    createdAt: readString(entry.created_at),
+    title: readString(entry.title, "Journal note"),
+    note: readString(entry.note),
+    mood: readNullableString(entry.mood),
+    prompt: readNullableString(entry.prompt),
+  }));
+}
+
+export async function saveJournalEntryToDb(entry: JournalEntry) {
+  const supabase = createClient();
+  const user = await getCurrentUser();
+
+  if (!user) {
+    throw new Error("You must be signed in to save a journal entry.");
+  }
+
+  const { error } = await supabase.from("ah_journal_entries").insert({
+    id: readString(entry.id),
+    user_id: user.id,
+    title: entry.title,
+    note: entry.note,
+    mood: entry.mood ?? null,
+    prompt: entry.prompt ?? null,
+    created_at: entry.createdAt,
+  });
+
+  if (error) throw error;
 }

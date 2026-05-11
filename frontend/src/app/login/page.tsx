@@ -14,7 +14,6 @@ export default function LoginPage() {
   const [loadingEmail, setLoadingEmail] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
 
-  const supabase = createClient();
 
   useEffect(() => {
     async function checkExistingSession() {
@@ -41,6 +40,8 @@ export default function LoginPage() {
 
     const redirectTo = `${window.location.origin}/auth/callback?next=/`;
 
+    const supabase = createClient();
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -60,6 +61,8 @@ export default function LoginPage() {
     setMessage("");
 
     const redirectTo = `${window.location.origin}/auth/callback?next=/`;
+
+    const supabase = createClient();
 
     const { error } = await supabase.auth.signInWithOtp({
       email,
