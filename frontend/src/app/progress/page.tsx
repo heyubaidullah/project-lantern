@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Header from "@/components/Header";
 import AppFooter from "@/components/AppFooter";
 import {
@@ -87,17 +88,26 @@ export default function ProgressPage() {
         />
 
         <div className="relative z-10 mx-auto max-w-6xl px-5 py-8 sm:px-6 lg:px-8">
-          <div className="mb-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--heading-accent-soft)]">
-              Progress
-            </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--heading-accent)] sm:text-4xl">
-              A look at {firstName === "your" ? "your" : `${firstName}'s`} journey so far
-            </h1>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--text-muted)] sm:text-base">
-              A calm view of saved reflections, chosen action steps, and the
-              pathways you’ve been moving through.
-            </p>
+          <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--heading-accent-soft)]">
+                Progress
+              </p>
+              <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--heading-accent)] sm:text-4xl">
+                A look at {firstName === "your" ? "your" : `${firstName}'s`} journey so far
+              </h1>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--text-muted)] sm:text-base">
+                A calm view of saved reflections, chosen action steps, and the
+                pathways you’ve been moving through.
+              </p>
+            </div>
+
+            <Link
+              href="/journal"
+              className="rounded-full border border-[var(--border-soft)] bg-[var(--surface-raised)] px-6 py-3 text-center text-sm font-medium text-[var(--heading-accent)] transition hover:bg-[var(--surface-soft)]"
+            >
+              Open Journal
+            </Link>
           </div>
 
           {loading && (
