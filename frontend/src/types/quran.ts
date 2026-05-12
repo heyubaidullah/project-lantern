@@ -12,3 +12,22 @@ export type Chapter = {
 export type ChaptersResponse = {
   chapters: Chapter[];
 };
+
+export type AyahSearchResult = {
+  verseKey: string | null;
+  chapterId: number | null;
+  chapterName: string | null;
+  verseNumber: number | null;
+  arabic: string;
+  translation: string;
+  reference: string;
+  quranComUrl: string;
+};
+
+export type AyahSearchSource = "qf-search" | "curated-fallback";
+
+export type AyahSearchResponse = {
+  query: string;
+  source: AyahSearchSource;
+  results: AyahSearchResult[];
+};

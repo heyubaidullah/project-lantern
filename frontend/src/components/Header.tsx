@@ -11,6 +11,7 @@ const navItems = [
   { label: "Home", href: "/" },
   { label: "Today", href: "/journey" },
   { label: "I’m Feeling", href: "/feeling" },
+  { label: "Find an Ayah", href: "/ayah-finder" },
   { label: "Journal", href: "/journal" },
   { label: "Progress", href: "/progress" },
   { label: "About", href: "/about" },

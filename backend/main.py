@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from qf_client import qf_client
@@ -38,6 +38,19 @@ def debug_qf_config():
         "client_id_prefix": settings.qf_client_id[:8] if settings.qf_client_id else None,
         "client_secret_length": len(settings.qf_client_secret) if settings.qf_client_secret else 0,
     }
+
+
+@app.get("/api/qf/search")
+async def search_quran(q: str = Query(..., min_length=2)):
+    query = q.strip()
+    if len(query) < 2:
+        raise HTTPException(status_code=400, detail="Search query is required.")
+
+    try:
+        data = await qf_client.search_ayahs(query)
+        return data
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 @app.get("/api/qf/verse/{verse_key}")
 async def get_quran_verse(verse_key: str):
