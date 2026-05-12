@@ -12,3 +12,19 @@ export type Chapter = {
 export type ChaptersResponse = {
   chapters: Chapter[];
 };
+
+export type AyahSearchResult = {
+  verseKey: string | null;
+  chapterId: number | null;
+  chapterName: string | null;
+  verseNumber: number | null;
+  arabic: string;
+  translation: string;
+  reference: string;
+  quranComUrl: string;
+};
+
+export type AyahSearchResponse = {
+  query: string;
+  results: AyahSearchResult[];
+};
