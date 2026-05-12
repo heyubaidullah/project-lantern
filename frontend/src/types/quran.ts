@@ -24,7 +24,10 @@ export type AyahSearchResult = {
   quranComUrl: string;
 };
 
+export type AyahSearchSource = "qf-search" | "curated-fallback";
+
 export type AyahSearchResponse = {
   query: string;
+  source: AyahSearchSource;
   results: AyahSearchResult[];
 };

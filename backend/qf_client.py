@@ -2,11 +2,16 @@ import re
 import time
 import httpx
 
+from ayah_finder_fallback import get_curated_fallback_verse_keys
 from config import settings
 
 
 DEFAULT_SEARCH_TRANSLATION_ID = 85
 MAX_SEARCH_RESULTS = 3
+
+
+class SearchScopeUnavailableError(Exception):
+    pass
 
 
 class QuranFoundationClient:
@@ -33,7 +38,13 @@ class QuranFoundationClient:
                 headers={"Content-Type": "application/x-www-form-urlencoded"},
                 data={"grant_type": "client_credentials", "scope": scope},
             )
-            response.raise_for_status()
+            try:
+                response.raise_for_status()
+            except httpx.HTTPStatusError as exc:
+                if scope == "search" and self._is_invalid_scope_response(exc.response):
+                    raise SearchScopeUnavailableError() from exc
+                raise
+
             data = response.json()
 
         access_token = data["access_token"]
@@ -132,19 +143,41 @@ class QuranFoundationClient:
             return response.json()
 
     async def search_ayahs(self, query: str) -> dict:
-        raw_search = await self.search(query)
-        verse_keys = self._extract_search_verse_keys(raw_search)[:MAX_SEARCH_RESULTS]
+        source = "qf-search"
+        raw_search = {}
+
+        try:
+            raw_search = await self.search(query)
+            verse_keys = self._extract_search_verse_keys(raw_search)[:MAX_SEARCH_RESULTS]
+        except SearchScopeUnavailableError:
+            source = "curated-fallback"
+            verse_keys = get_curated_fallback_verse_keys(query, MAX_SEARCH_RESULTS)
+
         try:
             chapters = await self._get_chapter_name_map()
         except Exception:
             chapters = {}
 
         results = []
-        for verse_key in verse_keys:
+        for verse_key in verse_keys[:MAX_SEARCH_RESULTS]:
             result = await self._build_search_result(verse_key, chapters, raw_search)
             results.append(result)
 
-        return {"query": query, "results": results}
+        return {"query": query, "source": source, "results": results}
+
+    def _is_invalid_scope_response(self, response: httpx.Response) -> bool:
+        try:
+            error_data = response.json()
+        except ValueError:
+            error_data = {}
+
+        if not isinstance(error_data, dict):
+            return False
+
+        error = str(error_data.get("error", "")).lower()
+        description = str(error_data.get("error_description", "")).lower()
+
+        return error == "invalid_scope" or "invalid_scope" in description
 
     def _extract_search_verse_keys(self, data: dict) -> list[str]:
         candidates = []

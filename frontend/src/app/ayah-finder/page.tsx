@@ -24,6 +24,7 @@ export default function AyahFinderPage() {
   const [results, setResults] = useState<AyahSearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [resultSource, setResultSource] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
   const [savingVerseKey, setSavingVerseKey] = useState<string | null>(null);
   const [saveMessages, setSaveMessages] = useState<Record<string, string>>({});
@@ -41,10 +42,12 @@ export default function AyahFinderPage() {
     setError("");
     setHasSearched(true);
     setSubmittedQuery(trimmedQuery);
+    setResultSource("");
     setResults([]);
 
     try {
       const data = await searchAyahs(trimmedQuery);
+      setResultSource(data.source);
       setResults(data.results ?? []);
     } catch {
       setError("We couldn’t find ayahs right now. Please try again shortly.");
@@ -202,6 +205,11 @@ export default function AyahFinderPage() {
                   <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--heading-accent)]">
                     Relevant ayahs for “{submittedQuery}”
                   </h2>
+                  {resultSource === "curated-fallback" && (
+                    <p className="mt-3 rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-soft)] px-4 py-3 text-sm leading-6 text-[var(--text-muted)]">
+                      Search access is being finalized. Showing curated Quran-first matches for now.
+                    </p>
+                  )}
                 </div>
 
                 {results.map((result) => {
