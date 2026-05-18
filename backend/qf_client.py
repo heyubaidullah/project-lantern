@@ -10,11 +10,7 @@ DEFAULT_SEARCH_TRANSLATION_ID = 85
 MAX_SEARCH_RESULTS = 3
 
 
-class SearchUnavailableError(Exception):
-    pass
-
-
-class SearchScopeUnavailableError(SearchUnavailableError):
+class SearchScopeUnavailableError(Exception):
     pass
 
 
@@ -129,34 +125,22 @@ class QuranFoundationClient:
         access_token = await self.get_access_token(scope="search")
         url = f"{settings.qf_api_base_url}/api/v1/search"
 
-        try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.get(
-                    url,
-                    headers=self._auth_headers(access_token),
-                    params={
-                        "mode": "advanced",
-                        "query": query,
-                        "page": 1,
-                        "size": MAX_SEARCH_RESULTS,
-                        "translation_ids": str(DEFAULT_SEARCH_TRANSLATION_ID),
-                        "get_text": 1,
-                        "highlight": 0,
-                    },
-                )
-                try:
-                    response.raise_for_status()
-                except httpx.HTTPStatusError as exc:
-                    if self._is_search_unavailable_response(exc.response):
-                        raise SearchUnavailableError() from exc
-                    raise
-
-                try:
-                    return response.json()
-                except ValueError as exc:
-                    raise SearchUnavailableError() from exc
-        except httpx.RequestError as exc:
-            raise SearchUnavailableError() from exc
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                url,
+                headers=self._auth_headers(access_token),
+                params={
+                    "mode": "advanced",
+                    "query": query,
+                    "page": 1,
+                    "size": MAX_SEARCH_RESULTS,
+                    "translation_ids": str(DEFAULT_SEARCH_TRANSLATION_ID),
+                    "get_text": 1,
+                    "highlight": 0,
+                },
+            )
+            response.raise_for_status()
+            return response.json()
 
     async def search_ayahs(self, query: str) -> dict:
         source = "qf-search"
@@ -165,9 +149,7 @@ class QuranFoundationClient:
         try:
             raw_search = await self.search(query)
             verse_keys = self._extract_search_verse_keys(raw_search)[:MAX_SEARCH_RESULTS]
-            if not verse_keys:
-                raise SearchUnavailableError()
-        except SearchUnavailableError:
+        except SearchScopeUnavailableError:
             source = "curated-fallback"
             verse_keys = get_curated_fallback_verse_keys(query, MAX_SEARCH_RESULTS)
 
@@ -196,12 +178,6 @@ class QuranFoundationClient:
         description = str(error_data.get("error_description", "")).lower()
 
         return error == "invalid_scope" or "invalid_scope" in description
-
-    def _is_search_unavailable_response(self, response: httpx.Response) -> bool:
-        if response.status_code in {403, 404}:
-            return True
-
-        return self._is_invalid_scope_response(response)
 
     def _extract_search_verse_keys(self, data: dict) -> list[str]:
         candidates = []
