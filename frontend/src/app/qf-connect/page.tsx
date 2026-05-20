@@ -15,6 +15,7 @@ export default function QfConnectPage() {
   const [testState, setTestState] = useState<TestState>("idle");
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
+  const [bookmarksConnected, setBookmarksConnected] = useState(false);
 
   const oauthUrl = useMemo(() => `${API_BASE}/api/qf/oauth/start`, []);
 
@@ -47,31 +48,34 @@ export default function QfConnectPage() {
     setTestState("idle");
 
     try {
-      const res = await fetch(`${API_BASE}/api/qf/user/bookmarks?mushafId=1`, {
+      const res = await fetch(`${API_BASE}/api/qf/user/bookmarks?mushafId=1&first=10`, {
         credentials: "include",
         cache: "no-store",
       });
       const data = await res.json();
       setResult(JSON.stringify(data, null, 2));
 
-      if (data?.connected === false) {
-        setStatus("not_connected");
-        setTestState("api_failed");
-      } else if (res.ok) {
+      if (data?.connected === true) {
         setStatus("connected");
+        setBookmarksConnected(true);
+      } else if (data?.connected === false && !bookmarksConnected) {
+        setStatus("not_connected");
+      }
+
+      if (res.ok && data?.connected === true) {
         setTestState("success");
       } else {
-        setStatus("connected");
         setTestState("api_failed");
       }
     } catch {
-      setStatus("connected");
       setTestState("api_failed");
       setResult("Failed to call Quran.Foundation User API.");
     } finally {
       setLoading(false);
     }
   }
+
+  const effectiveConnected = status === "connected" || bookmarksConnected;
 
   return (
     <div className="min-h-screen bg-[var(--bg-page)]">
@@ -85,9 +89,9 @@ export default function QfConnectPage() {
           <div className="mt-6 rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-soft)] p-4">
             <p className="text-sm font-semibold text-[var(--heading-accent)]">Status</p>
             <p className="mt-2 text-sm text-[var(--text-strong)]">
-              {status === "connected" && testState !== "api_failed" && "Connected"}
-              {status === "connected" && testState === "api_failed" && "Connected, but Bookmarks test failed"}
-              {status === "not_connected" && "Not connected"}
+              {effectiveConnected && testState !== "api_failed" && "Connected"}
+              {effectiveConnected && testState === "api_failed" && "Connected, but Bookmarks test failed"}
+              {!effectiveConnected && status === "not_connected" && "Not connected"}
               {status === "failed" && "Connection failed. OAuth may be misconfigured (redirect URI/scopes)."}
             </p>
           </div>
@@ -101,7 +105,7 @@ export default function QfConnectPage() {
             <p className="text-sm font-semibold text-[var(--heading-accent)]">Bookmarks test result</p>
             <p className="mt-2 text-xs text-[var(--text-muted)]">This tests the Quran.Foundation User API through the Bookmarks endpoint.</p>
             {testState === "success" && <p className="mt-3 text-sm text-[var(--text-strong)]">Connected • Bookmarks API test successful</p>}
-            {testState === "api_failed" && status === "connected" && <p className="mt-3 text-sm text-[var(--text-strong)]">Connected • Bookmarks API test failed</p>}
+            {testState === "api_failed" && effectiveConnected && <p className="mt-3 text-sm text-[var(--text-strong)]">Connected • Bookmarks API test failed</p>}
             <pre className="mt-3 max-h-72 overflow-auto rounded-xl bg-[var(--surface-raised)] p-3 text-xs text-[var(--text-strong)]">{result || "No test run yet."}</pre>
           </div>
         </section>

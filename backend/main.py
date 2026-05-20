@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import base64
 import hashlib
 import secrets
@@ -142,6 +143,8 @@ def qf_user_status(qf_user_access_token: str | None = Cookie(default=None)):
 @app.get("/api/qf/user/bookmarks")
 async def qf_user_bookmarks(
     mushafId: int = Query(default=1, ge=1),
+    first: int | None = Query(default=None, ge=1),
+    last: int | None = Query(default=None, ge=1),
     qf_user_access_token: str | None = Cookie(default=None),
 ):
     if not qf_user_access_token:
@@ -153,12 +156,20 @@ async def qf_user_bookmarks(
             },
         )
 
+    request_params: dict[str, int] = {"mushafId": mushafId}
+    if first is not None:
+        request_params["first"] = first
+    elif last is not None:
+        request_params["last"] = last
+    else:
+        request_params["first"] = 10
+
     url = "https://apis.quran.foundation/auth/v1/bookmarks"
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.get(
                 url,
-                params={"mushafId": mushafId},
+                params=request_params,
                 headers={
                     "x-auth-token": qf_user_access_token,
                     "x-client-id": settings.qf_client_id.strip(),
