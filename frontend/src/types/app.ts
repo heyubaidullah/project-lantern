@@ -20,7 +20,7 @@ export type SavedJourneyEntry = {
   chapterArabicName: string;
   reflection: string;
   actionStep: string;
-  source?: "journey" | "feeling" | "journal";
+  source?: "journey" | "feeling" | "journal" | "ayah-finder";
   lifeStateKey?: string | null;
   lifeStateLabel?: string | null;
   verseKey?: string | null;
