@@ -63,6 +63,21 @@ export default function SettingsPage() {
         </section>
 
         <div className="mt-6 grid gap-6">
+          <section className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_20px_60px_rgba(30,45,56,0.05)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
+              Quran.Foundation Connection
+            </p>
+            <p className="mt-3 text-sm leading-7 text-[var(--text-muted)]">
+              Connect your Quran.Foundation account to enable user-related API features.
+            </p>
+            <a
+              href="/qf-connect"
+              className="mt-4 inline-flex rounded-full bg-[var(--button-primary-bg)] px-4 py-2 text-sm font-medium text-[var(--button-primary-text)] transition hover:opacity-90"
+            >
+              Connect QF
+            </a>
+          </section>
+
           <section className="rounded-[2rem] border border-[var(--border-soft)] bg-[var(--surface-raised)] p-6 shadow-[0_20px_60px_rgba(30,45,56,0.05)] transition hover:-translate-y-1 hover:border-[var(--brand-a)] hover:shadow-[0_24px_70px_rgba(30,45,56,0.08)]">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--heading-accent-soft)]">
               Current experience

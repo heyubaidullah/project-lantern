@@ -8,6 +8,7 @@ const navItems = [
   { label: "Journal", href: "/journal" },
   { label: "Progress", href: "/progress" },
   { label: "About", href: "/about" },
+  { label: "Connect QF", href: "/qf-connect" },
   { label: "Privacy", href: "/privacy" },
   { label: "Disclaimer", href: "/disclaimer" },
 ];
