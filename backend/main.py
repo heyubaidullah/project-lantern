@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import base64
 import hashlib
 import secrets
@@ -141,7 +140,10 @@ def qf_user_status(qf_user_access_token: str | None = Cookie(default=None)):
 
 
 @app.get("/api/qf/user/bookmarks")
-async def qf_user_bookmarks(qf_user_access_token: str | None = Cookie(default=None)):
+async def qf_user_bookmarks(
+    mushafId: int = Query(default=1, ge=1),
+    qf_user_access_token: str | None = Cookie(default=None),
+):
     if not qf_user_access_token:
         return JSONResponse(
             status_code=401,
@@ -156,6 +158,7 @@ async def qf_user_bookmarks(qf_user_access_token: str | None = Cookie(default=No
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.get(
                 url,
+                params={"mushafId": mushafId},
                 headers={
                     "x-auth-token": qf_user_access_token,
                     "x-client-id": settings.qf_client_id.strip(),
