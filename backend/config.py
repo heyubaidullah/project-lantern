@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     qf_api_base_url: str
     qf_client_id: str
     qf_client_secret: str
+    qf_user_scopes: str = "openid offline_access bookmark"
+    qf_oauth_redirect_uri: str = "http://localhost:8000/api/qf/oauth/callback"
 
     supabase_url: str
     supabase_anon_key: str
