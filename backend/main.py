@@ -24,8 +24,27 @@ app.add_middleware(
 )
 
 
-def _is_secure_cookie() -> bool:
-    return settings.frontend_url.startswith("https://")
+def _is_production() -> bool:
+    return settings.app_env.lower() == "production"
+
+
+def _oauth_cookie_settings(max_age: int) -> dict[str, str | int | bool]:
+    if _is_production():
+        return {
+            "httponly": True,
+            "secure": True,
+            "samesite": "none",
+            "path": "/",
+            "max_age": max_age,
+        }
+
+    return {
+        "httponly": True,
+        "secure": False,
+        "samesite": "lax",
+        "path": "/",
+        "max_age": max_age,
+    }
 
 
 def _pkce_code_verifier() -> str:
@@ -66,12 +85,7 @@ def qf_oauth_start():
     auth_url = f"{settings.qf_auth_base_url}/oauth2/auth?{urlencode(params)}"
     response = RedirectResponse(url=auth_url, status_code=307)
 
-    cookie_base = {
-        "httponly": True,
-        "secure": _is_secure_cookie(),
-        "samesite": "lax",
-        "max_age": 600,
-    }
+    cookie_base = _oauth_cookie_settings(max_age=600)
     response.set_cookie("qf_oauth_state", state, **cookie_base)
     response.set_cookie("qf_oauth_nonce", nonce, **cookie_base)
     response.set_cookie("qf_oauth_code_verifier", code_verifier, **cookie_base)
@@ -117,21 +131,16 @@ async def qf_oauth_callback(
 
     success_url = f"{settings.frontend_url}/qf-connect?connected=1"
     redirect = RedirectResponse(url=success_url, status_code=307)
-    cookie_base = {
-        "httponly": True,
-        "secure": _is_secure_cookie(),
-        "samesite": "lax",
-        "max_age": 60 * 60 * 24,
-    }
+    cookie_base = _oauth_cookie_settings(max_age=60 * 60 * 24)
     redirect.set_cookie("qf_user_access_token", access_token, **cookie_base)
 
     refresh_token = token_data.get("refresh_token")
     if refresh_token:
         redirect.set_cookie("qf_user_refresh_token", refresh_token, **cookie_base)
 
-    redirect.delete_cookie("qf_oauth_state")
-    redirect.delete_cookie("qf_oauth_nonce")
-    redirect.delete_cookie("qf_oauth_code_verifier")
+    redirect.delete_cookie("qf_oauth_state", path="/")
+    redirect.delete_cookie("qf_oauth_nonce", path="/")
+    redirect.delete_cookie("qf_oauth_code_verifier", path="/")
     return redirect
 
 
